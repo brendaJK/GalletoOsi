@@ -1,9 +1,9 @@
 from flask import Flask,render_template, request,jsonify, Response, url_for,make_response
-from tkinter import messagebox as mb
+
 from flask import flash,redirect
 from flask_wtf.csrf import CSRFProtect
 import io
-from fpdf import FPDF
+# from fpdf import FPDF
 from pymongo import MongoClient
 from bson import ObjectId
 import forms
@@ -14,6 +14,7 @@ import hashlib
 from pymongo import MongoClient
 from email.message import EmailMessage
 import ssl
+
 import smtplib
 
 #lo ideal es que la url este en una variable de entorno
@@ -44,7 +45,8 @@ def osi():
 
 @app.route("/veriff", methods=["GET", "POST"])
 def veriff():
-    return render_template('verificacion.html')
+    form = forms.VerificacionForm(request.form)
+    return render_template('verificacion.html', form=form)
 
 
     
@@ -175,7 +177,7 @@ def login():
             
 
             # Redirigir a la página que obtiene la sesión cambiala por la que necesites
-            return  redirect ('/osi')
+            return  redirect('/veriff')
         else:
             return render_template('index.html', form=form, message='Credenciales incorrectas')
     else:
@@ -206,7 +208,7 @@ def codigoVeri(email):
     server = smtplib.SMTP('smtp.gmail.com',587)
     server.starttls()
     server.login('kookie01jeon@gmail.com', 'zuvl ffvb ntjt hqke ')
-    server.sendmail('kookie01jeon@gmail.com' , email ,mensaje)
+    server.sendmail('jonarrodi99@gmail.com' , email ,mensaje)
     server.quit()
     print('Correo enviado osi')
     
