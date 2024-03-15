@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block container %}
+{% import "_macros.html" as macros %}
+<div class="cookie-container">
+    
+    <div class="row justify-content-center">
+        <div class="col-xs-12 col-sm-6">
+            <form name="sent" action="/login" id="contactForm" method="POST">
+                <div class="titulo">Don Galleto</div>
+                <div class="form-group">
+                    {{macros.camposNuevos(form.username, class='form-control', style="color: white;
+                    font-size: 20px;
+                    border: 2px solid black;")}}
+                </div>
+                <div class="form-group">
+                    {{macros.camposNuevos(form.password, class='form-control', style="color: white;
+                    font-size: 20px;
+                    border: 2px solid black;")}}
+                </div>
+                <div class="row control- group" >
+                    <div class="form-groupform-group col-xs-12 floating-label-form-group ontrols">
+                        {{macros.camposNuevos(form.email,class='form-control')}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" id="send-signup" name="signup" value="Registrar" class="boton"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

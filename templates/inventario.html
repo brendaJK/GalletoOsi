@@ -1,0 +1,40 @@
+{% extends "layout2.html" %}
+{% from "_macros.html" import render_flied%}
+{%block container%}
+
+<div class="container">
+    <div class="row">
+    <!-- <h3>Empleados</h3>
+    <h4 ><a href="/index"></a>Empleado</h4> -->
+    <div class="tabla-scroll">
+    <table class="table table-striped table-bordered" id="tabla-inv">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio Fabricacion</th>
+                <th>Precio Venta</th>
+                <th>Stock</th>
+                <th>Eliminar</th>
+                <th>Agregar Stock</th>
+            </tr>
+        </thead>
+    <tbody>
+        {%for inve in inventario%}
+        <tr>
+            <td>{{inve.nombre}}</td>
+            <td>{{inve.precioF}}</td>
+            <td>{{inve.precioV}}</td>
+            <td>{{inve.stock}}</td>
+            <td><a href="eliminar?id={{inve._id}}"
+                class="" id="btnEliminar">Eliminar</a></td>
+            <td><a href="modificar?id={{inve._id}}"
+                    class="" id="btnModificar">Modificar</a></td>
+        </tr>
+        {%endfor%}
+    </tbody>
+    </table>
+    </div>
+</div>
+</div>
+
+{%endblock%}

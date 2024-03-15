@@ -1,0 +1,45 @@
+
+{% extends "layout2.html" %}
+{% block container %}
+{% import "_macros.html" as macros %}
+
+<div class="container">
+    <div class="row">
+        <form name="sent" action="/eliminar" id="contactForm" method="POST">
+            <div class="row control-group">
+                <div class="form-group col-xs-12 float-label-form-group controls">
+                    {{macros.camposNuevos(form.id,class='form-control')}}
+                </div>
+            </div>
+            <div class="row control-group">
+                <div class="form-group col-xs-12 float-label-form-group controls">
+                    {{macros.camposNuevos(form.nombre,class='form-control')}}
+                </div>
+            </div>
+            <div class="row control- group" method="POST" novalidate>
+                <div class="form-groupform-group col-xs-12 floating-label-form-group ontrols">
+                    {{macros.camposNuevos(form.precioF,class='form-control')}}
+                </div>
+            </div>
+
+            <div class="row control- group" >
+                <div class="form-groupform-group col-xs-12 floating-label-form-group ontrols">
+                    {{macros.camposNuevos(form.precioV,class='form-control')}}
+                </div>
+            </div>
+            <div class="row control- group" >
+                <div class="form-groupform-group col-xs-12 floating-label-form-group ontrols">
+                    {{macros.camposNuevos(form.stock,class='form-control')}}
+                </div>
+            </div>
+
+            
+            <input type="submit" class="btn btn-danger" id="eliminar" name="eliminar" value="Eliminar"/>
+            <a href="inventario" class="btn btn-success">
+                <i class="icon-undo icon-white"></i>Cancelar
+            </a>
+    
+        </form>
+    </div>
+</div>
+{%endblock%}

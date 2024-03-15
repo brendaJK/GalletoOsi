@@ -1,0 +1,73 @@
+
+
+<script>
+    // Función para calcular el total
+    function calcularTotal() {
+        // Obtener el valor del tipo, la cantidad y la galleta
+        var tipo = document.getElementById('tipo').value;
+        var cantidad = document.getElementById('cantidad').value;
+        var galleta = document.getElementById('galleta').value;
+
+        // Calcular el costo de la venta
+        var total;
+        if (tipo === 'Unidad') {
+            total = cantidad * 10;
+        } else if (tipo === 'Gramos') {
+            total = cantidad * 0.1;
+        } else if (tipo === 'Dinero') {
+            total = cantidad;
+        } else if (tipo === 'Caja') {
+            total = cantidad * 100;
+        }
+        // Actualizar el valor del campo total en el formulario
+        document.getElementById('total').value = total.toFixed(2);  // Ajusta el formato según sea necesario
+    }
+</script>
+
+{% extends "layout2.html" %}
+{% block container %}
+{% import "_macros.html" as macros %}
+
+<div class="container" >
+    <div class="row">
+        <form name="sent"  id="contactForm" method="POST">
+            <div class="row control-group">
+    <center><div class="container-form">       
+    <div class="form-groupform-group col-xs-12 floating-label-form-group ontrols">
+        <select name="tipo" id="tipo" onchange="calcularTotal()">
+                        <option value="Unidad">Unidad</option>
+                        <option value="Gramos">Peso por gramos</option>
+                        <option value="Dinero">Peso por dinero</option>
+                        <option value="Caja">Caja</option>
+                    </select>
+    </div>
+            
+            <div class="row control-group" method="POST" style="margin-top: 10px;" novalidate>
+                <div class="form-groupform-group col-xs-12 floating-label-form-group ontrols">
+ {{ form.galleta.label(class="control-label") }}
+                    <select id="galleta" name="galleta" class="form-control" onchange="calcularTotal()">
+                        {% for opcion in form.galleta.choices %}
+                            <option value="{{ opcion[0] }}">{{ opcion[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row control- group" method="POST" novalidate>
+         <div class="form-group form-group col-xs-12 col-sm-6 floating-label-form-group controls">
+                    <input id="cantidad" type="number" name="cantidad" class="form-control" onchange="calcularTotal()">
+                </div>
+                <div class="form-group form-group col-xs-12 col-sm-6 floating-label-form-group controls">
+                    <input id="total" type="number" name="total" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="row control- group" method="POST" novalidate >
+         
+            </div>
+            
+            <input type="submit" id="send-signup" name="signup" value="Registrar" class="btn-reg"/>
+    
+        </form>
+    </div></center>
+    </div>
+</div>
+{%endblock%}
