@@ -1,4 +1,5 @@
 from flask import Flask,render_template, request,jsonify, Response, url_for,make_response
+from tkinter import messagebox as mb
 from flask import flash,redirect
 from flask_wtf.csrf import CSRFProtect
 import io
@@ -34,11 +35,18 @@ app.secret_key = 'mysecretkey'
 # Definir el campo total
 
 # En tu vista de Flask
+codigo_verificacion = ""
 
 @app.route("/osi", methods=["GET", "POST"])
 def osi():
     
     return render_template('layout2.html')
+
+@app.route("/veriff", methods=["GET", "POST"])
+def veriff():
+    return render_template('verificacion.html')
+
+
     
 @app.route("/venta", methods=["GET", "POST"])
 def venta():
@@ -51,13 +59,6 @@ def venta():
     # Pasar las opciones al formulario para que pueda renderizarlas en el select
     form.galleta.choices = opciones_galleta
     
-    if request.method == 'POST' and form.validate():
-        tipo = request.form['tipo']
-        galleta = request.form['galleta']
-        cantidad = int(request.form['cantidad'])
-
-        
-        
     if request.method == 'POST' and form.validate():
         tipo = request.form['tipo']
         galleta = request.form['galleta']
@@ -163,30 +164,55 @@ def login():
         # Buscar el usuario en la base de datos
         usuario = db.usuarios.find_one({'username': form.username.data, 'password': passw})
         if usuario:
-            # Generar un token seguro para la sesión
-            session_token = secrets.token_hex(16)  # Genera un token hexadecimal de 16 bytes
-
-            # Actualizar el usuario con el campo de sesión
-            db.usuarios.update_one({'username': form.username.data}, {'$set': {'sesion': session_token}})
-
             
-            return redirect('/osi')
+            emailPrueba = db.usuarios.find_one({'username': form.username.data},{"email": 1, "_id": 0})
+            print(emailPrueba)
+            email = usuario.get('email')  # Obtener el correo electrónico del usuario
+            print(email)
+            codigoVeri(email)
+            
+            # Generar un token seguro para la sesión
+            
+
+            # Redirigir a la página que obtiene la sesión cambiala por la que necesites
+            return  redirect ('/osi')
         else:
             return render_template('index.html', form=form, message='Credenciales incorrectas')
     else:
         return render_template('index.html', form=form, message='Datos incorrectos')
     
+@app.route('/verificacion', methods=['GET', 'POST'])
 def verificacion():
-    form = LoginForm()
-    email = db.usuarios.find_one({"email": form.email.data}, {"email": 1, "_id": 0})
+    form = forms.VerificacionForm()
+    print('1')
     
-    mensaje = "Primera prueba"
+        
+    codigo = form.codigo.data
+    
+        
+    if codigo == codigo_verificacion :
+            print('3')
+            
+            session_token = secrets.token_hex(16)  # Genera un token hexadecimal de 16 bytes
+            # Actualizar el usuario con el campo de sesión
+            return redirect('/osi')
+    else:
+            flash("El codigo no es correcto", "error")
+    return render_template('index.html', form=form)        
+    
+def codigoVeri(email):
+    codigo_verificacion = secrets.token_hex(4)  # Código aleatorio de 8 caracteres
+    mensaje = codigo_verificacion
     server = smtplib.SMTP('smtp.gmail.com',587)
     server.starttls()
     server.login('kookie01jeon@gmail.com', 'zuvl ffvb ntjt hqke ')
-    server.sendmail('kookie01jeon@gmail.com' , 'es.bren.27.gtz.p@gmail.com',mensaje)
+    server.sendmail('kookie01jeon@gmail.com' , email ,mensaje)
     server.quit()
     print('Correo enviado osi')
+    
+    
+    
+    
     
 
 """
@@ -338,6 +364,8 @@ def obtener_datos_para_tabla():
         # Agrega más datos de ventas según sea necesario
     ]
     return ventas
+
+
 
 
 

@@ -65,6 +65,12 @@ class LoginForm(FlaskForm):
     email= EmailField('Email',[
         validators.Email(message='Ingresa un correo valido')
     ])
+    
+class VerificacionForm(Form):
+    codigo= StringField('Codigo',[
+        validators.DataRequired(message='El campo es requerido')
+    ])
+    
 
 class UsuNuevoForm(FlaskForm):
     username= StringField('Usuario',[

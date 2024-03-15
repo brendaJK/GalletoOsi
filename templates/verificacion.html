@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block container %}
+{% import "_macros.html" as macros %}
+
+<section class="vh-100" style="margin-top:30px;">
+    <div class="container-fluid h-custom col-md-4 col-lg-4 col-xl-5" style=" background-color: antiquewhite; margin-top:10px; border-radius:20px;">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-4 col-lg-4 col-xl-12" style="margin-top: 10px;;">
+                <center>
+                <img src="https://img.freepik.com/vector-gratis/ilustracion-icono-candado_53876-5633.jpg"
+                    class="img-fluid" alt="Sample image" style="height: 300px; border-radius: 10px">
+                </center>
+            </div>
+            
+
+            <div class="col-md-8 col-lg-6 col-xl-8 offset-xl-12" style="margin-top:15px;">
+                <form name="sent" action="/verificacion" id="contactForm" method="POST">
+
+                    <div class="form-outline mb-4">
+                        <div class="form-group">
+                            {{macros.camposNuevos(form.codigo, class='form-control', style="
+                            font-size: 15px;
+                            border: 2px solid black;")}}
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        <div class="form-group">
+                            <center><button type="submit" id="send-signup" name="signup" value="Registrar" class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;">Enviar</button>
+                            </center>
+                        </div>
+                        <div class="form-group">
+                            <center><p class="small fw-bold mt-2 pt-1 mb-0">No recibiste el correo? <a href="#!"
+                                class="link-danger">Reenviar</a></p>
+                            </center>
+                        </div>
+                    </div>    
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
