@@ -1,9 +1,9 @@
-from flask import Flask,render_template, request,jsonify, Response, url_for,make_response
+from flask import Flask,render_template, request,jsonify, Response, url_for,make_response,session
 
 from flask import flash,redirect
 from flask_wtf.csrf import CSRFProtect
 import io
-# from fpdf import FPDF
+from fpdf import FPDF
 from pymongo import MongoClient
 from bson import ObjectId
 import forms
@@ -14,6 +14,7 @@ import hashlib
 from pymongo import MongoClient
 from email.message import EmailMessage
 import ssl
+
 
 import smtplib
 
@@ -36,16 +37,43 @@ app.secret_key = 'mysecretkey'
 # Definir el campo total
 
 # En tu vista de Flask
-codigo_verificacion = ""
+mensaje = " "
 
 @app.route("/osi", methods=["GET", "POST"])
 def osi():
-    
-    return render_template('layout2.html')
+    return render_template('principal.html')
 
 @app.route("/veriff", methods=["GET", "POST"])
 def veriff():
+    
+    
+    global mensaje 
     form = forms.VerificacionForm(request.form)
+    
+    if request.method == 'POST':
+        codigo = form.codigo.data
+        print('2')
+        print('antes de entrar')
+        print(mensaje)
+        print(codigo)
+        if codigo == mensaje :
+                print('3')
+                email = session.get('email')
+                session_token = secrets.token_hex(16)
+                print(session_token)            
+                print(email)
+                db.usuarios.update_one({'email': email}, {'$set': {'sesion': session_token}})
+                
+                datos_usuario = db.usuarios.find_one({'email': email}, {'_id': 1, 'username': 1, 'email': 1, 'sesion': 1})  
+                session['datos_usuario'] = datos_usuario
+                print('funciono')
+            
+                return redirect('/osi')
+        else:
+            flash("El codigo no es correcto", "error")
+            print('no funciono')
+    
+    print('orale')
     return render_template('verificacion.html', form=form)
 
 
@@ -167,42 +195,22 @@ def login():
         usuario = db.usuarios.find_one({'username': form.username.data, 'password': passw})
         if usuario:
             
+            
             emailPrueba = db.usuarios.find_one({'username': form.username.data},{"email": 1, "_id": 0})
             print(emailPrueba)
-            email = usuario.get('email')  # Obtener el correo electrónico del usuario
+            email = usuario.get('email')
+            codigoVeri(email)# Obtener el correo electrónico del usuario
             print(email)
-            codigoVeri(email)
+            session['email'] = email
             
-            # Generar un token seguro para la sesión
-            
-
-            # Redirigir a la página que obtiene la sesión cambiala por la que necesites
             return  redirect('/veriff')
         else:
             return render_template('index.html', form=form, message='Credenciales incorrectas')
     else:
         return render_template('index.html', form=form, message='Datos incorrectos')
     
-@app.route('/verificacion', methods=['GET', 'POST'])
-def verificacion():
-    form = forms.VerificacionForm()
-    print('1')
-    
-        
-    codigo = form.codigo.data
-    
-        
-    if codigo == codigo_verificacion :
-            print('3')
-            
-            session_token = secrets.token_hex(16)  # Genera un token hexadecimal de 16 bytes
-            # Actualizar el usuario con el campo de sesión
-            return redirect('/osi')
-    else:
-            flash("El codigo no es correcto", "error")
-    return render_template('index.html', form=form)        
-    
 def codigoVeri(email):
+    global mensaje
     codigo_verificacion = secrets.token_hex(4)  # Código aleatorio de 8 caracteres
     mensaje = codigo_verificacion
     server = smtplib.SMTP('smtp.gmail.com',587)
@@ -210,12 +218,7 @@ def codigoVeri(email):
     server.login('kookie01jeon@gmail.com', 'zuvl ffvb ntjt hqke ')
     server.sendmail('jonarrodi99@gmail.com' , email ,mensaje)
     server.quit()
-    print('Correo enviado osi')
-    
-    
-    
-    
-    
+    print('Correo enviado osi')    
 
 """
 Esta ruta se encarga de cerrar la sesión de un usuario
@@ -355,7 +358,6 @@ def generar_pdf():
     response = make_response(buffer.getvalue())
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=reporte.pdf'
-
     return response
 
 # Función para obtener los datos de ventas (deberías reemplazarla con tu propia lógica)
