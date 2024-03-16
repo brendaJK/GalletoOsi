@@ -104,3 +104,5 @@ class InvenForm(Form):
     ])
     
     
+class ResetPassForm(Form):
+    email = EmailField("Introduce tu email:", [validators.DataRequired(message='El campo es requerido')])

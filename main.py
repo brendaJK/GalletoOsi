@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 from flask import Flask,render_template, request,jsonify, Response, url_for,make_response,session
 
 from flask import flash,redirect
+=======
+from flask import Flask,render_template, request,jsonify, Response, url_for,make_response
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from flask import flash,redirect, session
+>>>>>>> e740196a6f1999f45f60105484b5f15c22196838
 from flask_wtf.csrf import CSRFProtect
 import io
 from fpdf import FPDF
@@ -14,6 +21,7 @@ import hashlib
 from pymongo import MongoClient
 from email.message import EmailMessage
 import ssl
+import secrets
 
 
 import smtplib
@@ -359,6 +367,83 @@ def generar_pdf():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=reporte.pdf'
     return response
+
+# De aqui para abajo va lo de recuperar la contraseña jaja salu2
+
+@app.route('/ResetPass', methods = ['POST', 'GET'])
+def rPass():
+    create_form = forms.ResetPassForm(request.form)
+    if request.method == 'GET':
+        return render_template('ResetPass.html', form = create_form)
+    if request.method == 'POST':
+
+        
+        email = db.usuarios.find_one({'email': create_form.email.data})
+        if email:
+
+            token = secrets.token_urlsafe(16)
+            print(token)
+            session['reset_token'] = token
+            user = email.get('username')
+
+            de = 'GalletoInc@gmail.com'
+            para = email.get('email')
+            asunto = 'Recuperacion de Contraseña'
+
+            mensaje = MIMEMultipart()
+            mensaje['From'] = de
+            mensaje['To'] = para
+            mensaje['Subject'] = asunto
+            cuerpo = f'''\
+                       Hola,
+
+                       Has solicitado recuperar tu contraseña. 
+                       Por favor, sigue este enlace para restablecerla:
+
+                       http://localhost:5000/restablecer-contraseña?token={token}
+
+                       Si no solicitaste esto, ignora este mensaje.
+
+                       Saludos,
+                        
+                        Don galleto'''
+            texto = MIMEText(cuerpo, 'plain')
+            mensaje.attach(texto)
+
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+
+            server.login(de, 'dxgu xxvg lpbh pcxa')
+            server.send_message(mensaje)
+            server.quit()
+
+            msgconfirm = 'Se ha enviado el correo para la recuperacion de su contraseña.'
+
+
+        else: 
+            msgconfirm = 'No hay ninguna cuenta asosiada a este email.'        
+
+        return render_template('ResetPass.html', form = create_form, msg = msgconfirm)
+
+
+@app.route('/restablecer-contraseña', methods=['GET', 'POST'])
+def restablecer_contraseña():
+    token = request.args.get('token')
+    create_form = forms.ResetPassForm(request.form)
+    if token == session.get('reset_token'):
+        if request.method == 'POST':
+            #nueva_contraseña = request.form['nueva_contraseña']
+            # usuarios_db[usuario]['contraseña'] = nueva_contraseña
+            return 'Tu contraseña ha sido actualizada con éxito.'
+        return render_template('passwordRecup.html', form = create_form)
+    else:
+        return 'El token de restablecimiento de contraseña no es válido.'
+
+
+
+
+#Aqui termina lo de recuperar la contraseña jaja despedi2
+
 
 # Función para obtener los datos de ventas (deberías reemplazarla con tu propia lógica)
 def obtener_datos_para_tabla():
