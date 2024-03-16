@@ -1,13 +1,9 @@
-<<<<<<< HEAD
-from flask import Flask,render_template, request,jsonify, Response, url_for,make_response,session
 
 from flask import flash,redirect
-=======
 from flask import Flask,render_template, request,jsonify, Response, url_for,make_response
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import flash,redirect, session
->>>>>>> e740196a6f1999f45f60105484b5f15c22196838
 from flask_wtf.csrf import CSRFProtect
 import io
 from fpdf import FPDF
@@ -55,25 +51,32 @@ def osi():
 def veriff():
     
     
-    global mensaje 
+    mensaje = db.usuarios.find_one({'email': session.get('email')}, {'codigo_verificacion': 1}) 
     form = forms.VerificacionForm(request.form)
     
     if request.method == 'POST':
         codigo = form.codigo.data
         print('2')
         print('antes de entrar')
-        print(mensaje)
-        print(codigo)
-        if codigo == mensaje :
+        print(f'codigo: {codigo}')
+        print(f'mensaje: {mensaje}')
+        if codigo == mensaje['codigo_verificacion']:
                 print('3')
                 email = session.get('email')
                 session_token = secrets.token_hex(16)
                 print(session_token)            
                 print(email)
-                db.usuarios.update_one({'email': email}, {'$set': {'sesion': session_token}})
+                try:
+                    db.usuarios.update_one({'email': email}, {'$set': {'sesion': session_token}})
+                    #borrar el codigo de verificacion
+                    db.usuarios.update_one({'email': email}, {'$set': {'codigo_verificacion': ''}})
+                except Exception as e:
+                    print(f'Error al actualizar el token de sesión: {e}')
                 
                 datos_usuario = db.usuarios.find_one({'email': email}, {'_id': 1, 'username': 1, 'email': 1, 'sesion': 1})  
-                session['datos_usuario'] = datos_usuario
+                #hacer serializable el _id
+                datos_usuario['_id'] = str(datos_usuario['_id'])
+                session['datos_usuario'] = [datos_usuario]
                 print('funciono')
             
                 return redirect('/osi')
@@ -218,9 +221,10 @@ def login():
         return render_template('index.html', form=form, message='Datos incorrectos')
     
 def codigoVeri(email):
-    global mensaje
     codigo_verificacion = secrets.token_hex(4)  # Código aleatorio de 8 caracteres
     mensaje = codigo_verificacion
+    #guardar el mensaje en base de datos
+    db.usuarios.update_one({'email': email}, {'$set': {'codigo_verificacion': mensaje}})
     server = smtplib.SMTP('smtp.gmail.com',587)
     server.starttls()
     server.login('kookie01jeon@gmail.com', 'zuvl ffvb ntjt hqke ')
