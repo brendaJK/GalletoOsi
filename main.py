@@ -424,7 +424,7 @@ def restablecer_contraseña():
     create_form = forms.ResetPassForm(request.form)
     if token == session.get('reset_token'):
         if request.method == 'POST':
-            nueva_contraseña = request.form['nueva_contraseña']
+            #nueva_contraseña = request.form['nueva_contraseña']
             # usuarios_db[usuario]['contraseña'] = nueva_contraseña
             return 'Tu contraseña ha sido actualizada con éxito.'
         return render_template('passwordRecup.html', form = create_form)
