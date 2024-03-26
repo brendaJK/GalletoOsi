@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Nuevo Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f1e5; /* Beige */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #f6d39f; /* Marrón claro */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 0;
+            color: #644f4f; /* Marrón oscuro */
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #7d685e; /* Marrón medio */
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #b28c6e; /* Marrón claro */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #8f7258; /* Marrón oscuro */
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</head>
+<body>
+    {% import "_macros.html" as macros %}
+    <div class="container">
+        <h1>Registrate</h1>
+        <form action="" method="POST">
+            
+
+            {{macros.camposNuevos(form.username, style="
+            font-size: 15px;
+            border: 2px solid black;
+            margin-left: -15%;
+            margin-bottom: 20px")}}
+            
+            {{macros.camposNuevos(form.email, class='form-control', style="
+            font-size: 15px;
+            border: 2px solid black;
+            margin-left: -15%;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            width: 90%;
+            padding: 10px;")}}
+
+            
+            <div class="form-group">
+                <div class="input-group">
+                    {{macros.camposNuevos(form.password, class='form-control', id='password-input',
+                    style="
+                    font-size: 15px;
+                    border: 2px solid black;
+                    margin-left: -15%;
+                    margin-bottom: 20px")}}
+            
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fas fa-eye" id="toggle-password-icon"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+
+            <h3 style="color: #7d685e;">{{msg}}</h3>
+
+            <input type="submit" value="Registrarse">
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var togglePassword = document.getElementById('toggle-password-icon');
+            var passwordInput = document.getElementById('password-input');
+            
+            togglePassword.addEventListener('click', function() {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    togglePassword.classList.remove('fa-eye');
+                    togglePassword.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    togglePassword.classList.remove('fa-eye-slash');
+                    togglePassword.classList.add('fa-eye');
+                }
+            });
+        });
+    </script>
+    
+    
+    
+</body>
+</html>

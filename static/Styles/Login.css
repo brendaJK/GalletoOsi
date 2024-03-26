@@ -1,12 +1,12 @@
 .cookie-container {
     
-    border-radius: 50%; /* Radio de borde para formar una "galleta" */
-    padding: 20px; /* Espacio interno dentro de la "galleta" */
+    border-radius: 50%; 
+    padding: 20px; 
     width: 50%;
-    height: 500px; /* Altura de la "galleta" */
-    text-align: center; /* Centra el contenido dentro de la "galleta" */
-    margin: auto; /* Centra horizontalmente la "galleta" en la página */
-    margin-top: 10px; /* Espacio superior */
+    height: 500px; 
+    text-align: center; 
+    margin: auto; 
+    margin-top: 10px; 
     margin-bottom: 75px;
     background-image: url('https://static.vecteezy.com/system/resources/previews/015/738/191/non_2x/choco-chips-cookies-illustration-png.png');
 
