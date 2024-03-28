@@ -19,7 +19,7 @@ from email.message import EmailMessage
 import ssl
 import secrets
 
-
+from wtforms import validators
 import smtplib
 
 #lo ideal es que la url este en una variable de entorno
@@ -259,15 +259,37 @@ debes de recibir un json con el siguiente formato:
 de preferencia insertalos con postman
 
 """
-@app.route('/login/crear', methods=['POST'])
+@app.route('/login/crear', methods=['POST', 'GET'])
 def crear_usuario():
-    data = request.json
+    '''data = request.json
     #sacar la password del json y hashearla
     data['password'] = hashlib.sha256(data['password'].encode()).hexdigest()
     print(data)
     #insertar el usuario en la base de datos
     db.usuarios.insert_one(data)
-    return jsonify({'message': 'Usuario creado correctamente'}), 200
+    return jsonify({'message': 'Usuario creado correctamente'}), 200'''
+
+    create_form = forms.UsuNuevoForm(request.form)
+    msg = ''
+    if request.method == 'POST'  and create_form.validate():
+        username = create_form.username.data
+        email = create_form.email.data
+        password = hashlib.sha256(create_form.password.data.encode()).hexdigest()
+        print("Nombre: {}".format(username))
+        print("Contrasenia: {}".format(password))
+        print("Email: {}".format(email))
+
+        nuevo_usuario = {
+                'username': username,
+                'email': email,
+                'password': password,
+                'Rol': 'Empleado'
+            }
+        
+        db.usuarios.insert_one(nuevo_usuario)
+        msg = 'Usuario creado correctamente.'
+
+    return render_template('Registro.html', form = create_form, msg = msg)
 
 """
 Esta ruta se encarga de obtener todos los usuarios
@@ -384,11 +406,13 @@ def rPass():
         
         email = db.usuarios.find_one({'email': create_form.email.data})
         if email:
-
+            session.pop('reset_token')
             token = secrets.token_urlsafe(16)
-            print(token)
             session['reset_token'] = token
             user = email.get('username')
+            session['user'] = user
+            tokenURL= session.get('reset_token')
+
 
             de = 'GalletoInc@gmail.com'
             para = email.get('email')
@@ -404,7 +428,7 @@ def rPass():
                        Has solicitado recuperar tu contraseña. 
                        Por favor, sigue este enlace para restablecerla:
 
-                       http://localhost:5000/restablecer-contraseña?token={token}
+                       http://localhost:5000/restablecer-contraseña?token={tokenURL}
 
                        Si no solicitaste esto, ignora este mensaje.
 
@@ -432,17 +456,35 @@ def rPass():
 
 @app.route('/restablecer-contraseña', methods=['GET', 'POST'])
 def restablecer_contraseña():
-    token = request.args.get('token')
+    
     create_form = forms.ResetPassForm(request.form)
-    if token == session.get('reset_token'):
-        if request.method == 'POST':
-            #nueva_contraseña = request.form['nueva_contraseña']
-            # usuarios_db[usuario]['contraseña'] = nueva_contraseña
-            return 'Tu contraseña ha sido actualizada con éxito.'
-        return render_template('passwordRecup.html', form = create_form)
-    else:
-        return 'El token de restablecimiento de contraseña no es válido.'
+    msg = ''
+    resetToken = session.get('reset_token')
+    token = request.args.get('token')
+    print(f'Token de la url: {token}, Token de la sesion: {resetToken}')
+    if request.method == 'GET':
+        
+        if token == session.get('reset_token'):
+            usuario = session.get('user')
+            
+            usuariodb = db.usuarios.find_one({'username': usuario})
+            
+            return render_template('passwordRecup.html', form = create_form, msg = msg)
+        else:
+            msg = 'No estas autorizado para realizar esta accion.'
+            return render_template('passwordRecup.html', form = create_form, msg = msg)
 
+
+    if request.method == 'POST':
+        usuario = session.get('user')
+        
+        nueva_contrasenia = create_form.nueva_contrasenia.data
+        nueva_contrasenia = hashlib.sha256(nueva_contrasenia.encode()).hexdigest()
+      
+        db.usuarios.update_one({'username': usuario}, {'$set': {'password': nueva_contrasenia}})
+        session.pop('reset_token')
+        msg = 'Tu contraseña ha sido actualizada con éxito.'
+    return render_template('passwordRecup.html', form = create_form, msg = msg)
 
 
 

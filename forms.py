@@ -1,7 +1,7 @@
 from wtforms import Form
 from flask_wtf import FlaskForm
 from wtforms import StringField,TelField,IntegerField,SubmitField,PasswordField,TextAreaField,EmailField
-from wtforms import EmailField
+from wtforms import EmailField, PasswordField
 from wtforms import validators
 
 
@@ -72,9 +72,10 @@ class VerificacionForm(Form):
     ])
     
 
-class UsuNuevoForm(FlaskForm):
+class UsuNuevoForm(Form):
     username= StringField('Usuario',[
-        validators.DataRequired(message='El campo es requerido')
+        validators.DataRequired(message='El campo es requerido'),
+         validators.Length(min=1, message='Ingresa un nombre Valido')
     ])
     password = PasswordField('Contraseña', [
         validators.DataRequired(message='El campo es requerido'),
@@ -106,3 +107,11 @@ class InvenForm(Form):
     
 class ResetPassForm(Form):
     email = EmailField("Introduce tu email:", [validators.DataRequired(message='El campo es requerido')])
+    nueva_contrasenia = PasswordField("Introduce tu nueva contraseña:", [
+        validators.DataRequired(message='El campo es requerido'),
+        validators.Length(min=8, message='Ingresa una contraseña válida'),
+        validators.Regexp(
+            regex='^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+])[A-Za-z0-9!@#$%^&*()_+]+$',
+            message='La contraseña debe contener al menos una mayúscula, al menos un carácter especial, letras minúsculas y números'
+        )
+    ])
