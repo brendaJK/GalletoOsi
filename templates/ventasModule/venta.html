@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="ruta/a/sweetalert.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+    <title>Venta de Galletas</title>
+</head>
+<body>
+    <form id="form-ventas" method="post">
+        <div class="form-group">
+            <label for="nombreCliente">Nombre del Cliente</label>
+            <input type="text" id="nombreCliente" name="nombreCliente" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="tipoVenta">Tipo de Venta</label>
+            <select id="tipoVenta" name="tipoVenta" class="form-control">
+                <option value="unidad">Unidad</option>
+                <option value="caja">Caja</option>
+                <option value="gramo">Gramo</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cantidad">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="tipoGalleta">Tipo de Galleta</label>
+            <select id="tipoGalleta" name="tipoGalleta" class="form-control">
+                <option value="chocolate">Chocolate</option>
+                <option value="vainilla">Vainilla</option>
+                <option value="fresa">Fresa</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="guardarFila()">Enviar</button>
+
+    </form>
+    
+
+    <h2>Tabla de Ventas</h2>
+    <table id="tabla-ventas">
+        <thead>
+            <tr>
+                <th>Nombre del Cliente</th>
+                <th>Tipo de Venta</th>
+                <th>Cantidad</th>
+                <th>Tipo de Galleta</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td>{{ venta.nombreCliente }}</td>
+                <td>{{ venta.tipoVenta }}</td>
+                <td>{{ venta.cantidad }}</td>
+                <td>{{ venta.tipoGalleta }}</td>
+                <td><button onclick="eliminarFila(this)">Eliminar</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button onclick="enviarVentas()">Confirmar Venta</button>
+
+    <script>
+        function guardarFila() {
+        var nombreCliente = document.getElementById('nombreCliente').value;
+        var tipoVenta = document.getElementById('tipoVenta').value;
+        var cantidad = document.getElementById('cantidad').value;
+        var tipoGalleta = document.getElementById('tipoGalleta').value;
+
+        var nuevaFila = '<tr><td>' + nombreCliente + '</td><td>' + tipoVenta + '</td><td>' + cantidad + '</td><td>' + tipoGalleta + '</td><td><button onclick="eliminarFila(this)">Eliminar</button></td></tr>';
+
+        document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0].innerHTML += nuevaFila;
+    }
+
+    function eliminarFila(button) {
+        var fila = button.parentNode.parentNode;
+        fila.parentNode.removeChild(fila);
+    }
+
+    function enviarVentas() {
+    var ventas = [];
+    var tbody = document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0];
+    var rows = tbody.getElementsByTagName('tr');
+
+    for (var i = 0; i < rows.length; i++) {
+        var cells = rows[i].getElementsByTagName('td');
+        var venta = {
+            nombreCliente: cells[0].innerText,
+            tipoVenta: cells[1].innerText,
+            cantidad: cells[2].innerText,
+            tipoGalleta: cells[3].innerText
+        };
+        ventas.push(venta);
+    }
+
+    var ventasJSON = JSON.stringify(ventas);
+    fetch("/guardar_venta", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: ventasJSON,
+    })
+    .then((response) => {
+        if (response.ok) {
+            limpiarTablaVentas();
+            Swal.fire({
+                icon: 'success',
+                title: '¡Ventas guardadas correctamente!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Error en el servidor al guardar las ventas'
+            });
+        }
+    })
+    .catch((error) => {
+        console.error("Error en la solicitud:", error);
+    });
+}
+
+function limpiarTablaVentas() {
+    var tabla = document.getElementById("tabla-ventas");
+    tabla.getElementsByTagName("tbody")[0].innerHTML = "";
+}
+
+    </script>
+</body>
+</html>
