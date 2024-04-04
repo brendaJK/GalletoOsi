@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Producción - Tienda de Galletas</title>
+  <link rel="stylesheet" href="../../static/produccionStyle/produccion.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Registro de Producción</h1>
+    <form action="#" method="post" id="produccion-form">
+      <div class="form-group">
+        <label for="idProducto">ID del Producto:</label>
+        <input type="text" id="idProducto" name="idProducto" required>
+      </div>
+      <div class="form-group">
+        <label for="fechaProduccion">Fecha de Producción:</label>
+        <input type="date" id="fechaProduccion" name="fechaProduccion" required>
+      </div>
+      <div class="form-group">
+        <label for="fechaCaducidad">Fecha de Caducidad:</label>
+        <input type="date" id="fechaCaducidad" name="fechaCaducidad" required>
+      </div>
+      <div class="form-group">
+        <label for="descripcion">Descripción:</label>
+        <input type="text" id="descripcion" name="descripcion" required>
+      </div>
+      <div class="form-group">
+        <label for="costoProduccion">Costo de Producción:</label>
+        <input type="number" id="costoProduccion" name="costoProduccion" required>
+      </div>
+      <div class="form-group">
+        <label for="cantidadStock">Cantidad en Stock:</label>
+        <input type="number" id="cantidadStock" name="cantidadStock" required>
+      </div>
+      <div class="form-group">
+        <label for="cantidadProducida">Cantidad Producida:</label>
+        <input type="number" id="cantidadProducida" name="cantidadProducida" required>
+      </div>
+      <div class="form-group">
+        <label for="estatusProduccion">Estatus de Producción:</label>
+        <select id="estatusProduccion" name="estatusProduccion" required>
+          <option value="En Proceso">En Proceso</option>
+          <option value="Terminada">Terminada</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-submit">Registrar</button>
+    </form>
+  </div>
+</body>
+</html>

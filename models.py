@@ -31,20 +31,26 @@ class Produccion(db.Model):
     idProduccion = db.Column(db.Integer, primary_key = True)
     idProducto = db.Column(db.Integer)
     fechaProduccion = db.Column(db.Date)
-    descripcion = db.Column(db.String(100))
     costoProduccion = db.Column(db.Double)
     fechaCaducidad = db.Column(db.Date)
-    cantidadStock = db.Column(db.Integer)
-    cantidadProducida = db.Column(db.Integer)
-    estatusProduccion = db.Column(db.String(40))
+    idUsuario = db.Column(db.Integer)
 
 # Modelo de datos de producto
 class Producto(db.Model):
     __tablename__ = 'producto'
     idProducto = db.Column(db.Integer, primary_key = True)
     idReceta = db.Column(db.Integer)
-    idMateriaPrima = db.Column(db.Integer)
-    nombreProducto = db.Column(db.String(64))
+    
+    
+class MermaProduccion(db.Model):
+    __tablename__ = 'merma_produccion'
+    idMerma = db.Column(db.Integer, primary_key = True)
+    idInventario = db.Column(db.Integer)
+    idProduccion = db.Column(db.Integer)
+    idUsuario = db.Column(db.Integer)
+    cantidadMerma = db.Column(db.Double)
+    Descripcion = db.Column(db.String(150))
+    EstatusStock = db.Column(db.String(25))
     
 
 # Modelo de datos de Materia Prima (al que le toco esta tabla no se que mas vaya a agregar)
