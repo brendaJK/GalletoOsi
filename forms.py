@@ -12,7 +12,6 @@ class produccionForm(Form):
         costoProduccion = StringField('nombre del producto', [validators.DataRequired(message="El campo es requerido"), validators.Length(min=4, max=64, message="Ingrese un nombre válido")])
         fechaProduccion = StringField('nombre del producto', [validators.DataRequired(message="El campo es requerido"), validators.Length(min=4, max=64, message="Ingrese un nombre válido")])
         descripcion = StringField('nombre del producto', [validators.DataRequired(message="El campo es requerido"), validators.Length(min=4, max=64, message="Ingrese un nombre válido")])
-        fechaCaducidad = StringField('nombre del producto', [validators.DataRequired(message="El campo es requerido"), validators.Length(min=4, max=64, message="Ingrese un nombre válido")])
     
 class ProveForm(Form):
     id=IntegerField('id')
