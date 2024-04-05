@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - Don Galleto</title>
+  <link rel="stylesheet" href="/static/css/login.css">
+  <link rel="stylesheet" href="/static/plugins/sweetalert/sweetalert.css">
+  <link rel="stylesheet" href="/static/plugins/validationEngine/validationEngine.jquery.css">
+</head>
+<body>
+  <div class="login-container">
+    <img src="/static/images/logo2.png" alt="Galletas">
+    <form class="login-form" action="/olvidar-contrasena" id="formLogin" method="POST">
+      <label for="">Ingresa tu correo electronico</label>
+      <input type="email" data-validation-engine="validate[required,custom[email]]" id="email" name="email"  oninput="validarInput(this)">
+      <input type="submit" value="Enviar">
+    </form>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <div class="forgot-password">
+      <a href="/">Volver al inicio de sesión</a>
+    </div>
+  </div>
+  <script src="/static/plugins/sweetalert/sweetalert.min.js"></script>
+  <script src="/static/plugins/jquery.min.js"></script>
+  <script src="/static/plugins/validationEngine/jquery.validationEngine.js"></script>
+  <script src="/static/plugins/validationEngine/jquery.validationEngine-es.js"></script>
+  <script>
+    $('#formLogin').validationEngine({
+        scroll: false
+    });
+    function validarInput(input) {
+      var regex = /^[a-zA-Z0-9@.]+$/;
+      if (!regex.test(input.value)) {
+          input.value = input.value.replace(/[^a-zA-Z0-9@.]/g, '');
+      }
+  }
+  function validarCampos(){
+    var email = $('#email').val();
+    var password = $('#password').val();
+    if (email.trim() === '' || password.trim() === '') {
+        swal("Error", "Por favor, llene todos los campos", "error");
+    } 
+}
+  </script>
+</body>
+</html>

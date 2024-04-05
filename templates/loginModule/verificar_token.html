@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar Token - Don Galleto</title>
+  <link rel="stylesheet" href="/static/css/login.css">
+  <link rel="stylesheet" href="/static/plugins/sweetalert/sweetalert.css">
+  <link rel="stylesheet" href="/static/plugins/validationEngine/validationEngine.jquery.css">
+
+  <style>
+    .input {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Verificar Token</h2>
+    <form id="formVerificar" class="login-form" action="/verificar-token" method="post">
+      <div class="input">
+        <label for="email">Correo Electrónico</label>
+        <input type="email" id="email" name="email" data-validation-engine="validate[required,custom[email]]">
+      </div>
+      <div class="input">
+        <label for="token">Token de Verificación</label>
+        <input type="text" id="token" name="token" maxlength="5" data-validation-engine="validate[required]">
+      </div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" style="color: red;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+      <button type="submit">Verificar</button>
+    </form>
+  </div>
+  <script src="/static/plugins/sweetalert/sweetalert.min.js"></script>
+  <script src="/static/plugins/jquery.min.js"></script>
+  <script src="/static/plugins/validationEngine/jquery.validationEngine.js"></script>
+  <script src="/static/plugins/validationEngine/jquery.validationEngine-es.js"></script>
+  <script>
+    $('#formVerificar').validationEngine({
+        scroll: false
+    });
+    function validarInput(input) {
+      var regex = /^[a-zA-Z0-9@.]+$/;
+      if (!regex.test(input.value)) {
+          input.value = input.value.replace(/[^a-zA-Z0-9@.]/g, '');
+      }
+  }
+
+  </script>
+</body>
+</html>
