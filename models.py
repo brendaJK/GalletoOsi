@@ -57,6 +57,7 @@ class Producto(db.Model):
     idProducto = db.Column(db.Integer, primary_key = True)
     idReceta = db.Column(db.Integer)
     
+# Modelo de datos de MermaProuccion
 class MermaProduccion(db.Model):
     __tablename__ = 'merma_produccion'
     idMerma = db.Column(db.Integer, primary_key = True)
@@ -65,60 +66,50 @@ class MermaProduccion(db.Model):
     idUsuario = db.Column(db.Integer)
     cantidadMerma = db.Column(db.Double)
     Descripcion = db.Column(db.String(150))
-    Estatus = db.Column(db.String(25))
-
-# Modelo de datos de Materia Prima (al que le toco esta tabla no se que mas vaya a agregar)
-# class Materia_Prima(db.Model):
-#     __tablename__ = 'materia_prima'
-#     idMateriaPrima = db.Column(db.Integer, primary_key = True)
-#     idProveedor = db.Column(db.Integer)
-#     nombreMateriaP = db.Column(db.String(64))
-#     cantidad = db.Column(db.Double)
+    EstatusStock = db.Column(db.String(25))
 
 
-class Login(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
-    correo = db.Column(db.String(100), nullable=False)
-    contrasenia = db.Column(db.String(64), nullable=False) 
-    token = db.Column(db.String(220), nullable=True) 
-    rol = db.Column(db.String(50), nullable=False)
-    
+ # Modelo de datos de receta
 class Recetas(db.Model):
     __tablename__ = 'recetas'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(220), nullable=False)
-    descripcion = db.Column(db.String(220), nullable=False)
-    cantidadGalletas = db.Column(db.String(220), nullable=True)
-    pesoGalletas = db.Column(db.String(220), nullable=False)
-    imagen = db.Column(db.String(225), nullable=True)
-    detalles = db.relationship('RecetasDetalle', backref='receta', lazy=True)
+    idReceta = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    idRecetaDetalle = db.Column(db.Integer)
+    nombreGalleta = db.Column(db.String(64))
+    descripcion = db.Column(db.String(100))
+    cantidadGalletas = db.Column(db.Integer)
+    pesoGalleta = db.Column(db.Double)
 
-class RecetasDetalle(db.Model):
-    __tablename__ = 'recetas_detalle'
-    id = db.Column(db.Integer, primary_key=True)
-    iReceta = db.Column(db.Integer, db.ForeignKey('recetas.id'), nullable=False)
-    cantidad = db.Column(db.String(220), nullable=False)
-    ingrediente = db.Column(db.String(220), nullable=True)
-    material = db.Column(db.String(220), nullable=False)
+# Modelo de datos de RecetaDetalle
+class RecetaDetalle(db.Model):
+    __tablename__ = 'recetasDetalle'
+    idReceta = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    idRecetaDetalle = db.Column(db.Integer)
+    cantidad = db.Column(db.Integer)
+    ingrediente = db.Column(db.String(70))
+    material = db.Column(db.String(64))
 
-class Proveedor(db.Model): #creamos el mapeado para poder crear la tabla
-    __tablename__='proveedor' # nos permite agregar un  nombre especifico
-    idProveedor=db.Column(db.Integer,primary_key=True) #necesario el id para fungir como clave primaria y permita generar el campo siempre lo requiere 
-    razonSocial=db.Column(db.String(300)) # con db.Column asignando el tipo de dato
+
+# Modelo de datos de proveedor
+class Proveedor(db.Model): 
+    __tablename__='proveedor' 
+    idProveedor=db.Column(db.Integer,primary_key=True) 
+    razonSocial=db.Column(db.String(300)) 
     nombreP=db.Column(db.String(100))
     estatus=db.Column(db.String(8))
-    fechaAgregado=db.Column(db.DateTime,default=datetime.now)  # Aquí está el cambio
-    
-class MateriaPrimas(db.Model): #creamos el mapeado para poder crear la tabla
-    __tablename__='materiaPrima' # nos permite agregar un  nombre especifico
+    fechaAgregado=db.Column(db.DateTime, default=datetime.now)
+
+# Modelo de datos de Materias Primas 
+class MateriaPrimas(db.Model): 
+    __tablename__='materiaPrima' 
     idMP=db.Column(db.Integer,primary_key=True)
     nombreMa=db.Column(db.String(100))
     tipoPro=db.Column(db.String(10))
     estatus=db.Column(db.String(10))
-    
-class CompraMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabla
-    __tablename__='compraMateriaPrima' # nos permite agregar un  nombre especifico
+
+
+ # Modelo de datos de Compra de Materias primas   
+class CompraMateriaPrima(db.Model): 
+    __tablename__='compraMateriaPrima'
     idCMP=db.Column(db.Integer,primary_key=True)
     idMP=db.Column(db.Integer)
     idProveedor=db.Column(db.Integer)
@@ -128,8 +119,9 @@ class CompraMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabl
     idUsuario=db.Column(db.Integer)
     fechaCompra=db.Column(db.DateTime,default=datetime.now)
 
-class MermaMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabla
-    __tablename__='mermaMateriaPrima' # nos permite agregar un  nombre especifico
+# Modelo de datos de Merma de Materias Primas
+class MermaMateriaPrima(db.Model): 
+    __tablename__='mermaMateriaPrima' 
     idMermaMa=db.Column(db.Integer,primary_key=True)
     idMP=db.Column(db.Integer)
     idMPI=db.Column(db.Integer)
@@ -139,21 +131,14 @@ class MermaMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabla
     idUsuario=db.Column(db.Integer)
     fecha=db.Column(db.DateTime)
 
-class InventarioMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabla
-    __tablename__='inventarioMateriaPrima' # nos permite agregar un  nombre especifico
+#Modelo de datos de Inventario de Materias Primas
+class InventarioMateriaPrima(db.Model): 
+    __tablename__='inventarioMateriaPrima'
     idMPI=db.Column(db.Integer,primary_key=True)
     idCMP=db.Column(db.Integer)
     cantidad=db.Column(db.String(100))
     estatus=db.Column(db.String(10))
     fechaCaducidad=db.Column(db.DateTime)    
+    
+    
 
-#Modelo de datos Usuario xd
-class Usuario(db.Model):
-    __tablename__ = 'usuario'
-    idUsuario = db.Column(db.Integer, primary_key = True)
-    correo = db.Column(db.String(255))
-    contrasenia = db.Column(db.String(255))
-    token = db.Column(db.String(255))
-    rol = db.Column(db.String(25))
-    nombreCompleto = db.Column(db.String(255))
-    estatusUsuario = db.Column(db.String(25))
