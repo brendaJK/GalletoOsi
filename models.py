@@ -96,7 +96,7 @@ class Proveedor(db.Model):
     razonSocial=db.Column(db.String(300)) 
     nombreP=db.Column(db.String(100))
     estatus=db.Column(db.String(8))
-    fechaAgregado=db.Column(db.DateTime, default=datetime.now)
+    fechaAgregado=db.Column(db.DateTime, default= datetime.now())
 
 # Modelo de datos de Materias Primas 
 class MateriaPrimas(db.Model): 
@@ -141,4 +141,12 @@ class InventarioMateriaPrima(db.Model):
     fechaCaducidad=db.Column(db.DateTime)    
     
     
-
+class Usuarios(db.Model):
+    __tablename__='usuarios'
+    idUsuario = db.Column(db.Integer,primary_key=True)
+    correo = db.Column(db.String(100))
+    contrasenia = db.Column(db.String(64))
+    token = db.Column(db.String(15))
+    rol = db.Column(db.String(45))
+    nombre = db.Column(db.String(50))
+    estatus = db.Column(db.String(20))
