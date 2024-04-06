@@ -13,6 +13,8 @@ def guardarProduccion():
     create_form = forms.produccionForm(request.form)
 
     if request.method == 'POST':
+
+        
         costoProd = create_form.costoProduccion.data
         fechaProd = create_form.fechaProduccion.data
         fechaCad = create_form.fechaCaducidad.data
