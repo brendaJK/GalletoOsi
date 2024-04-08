@@ -82,8 +82,8 @@ class Recetas(db.Model):
 # Modelo de datos de RecetaDetalle
 class RecetaDetalle(db.Model):
     __tablename__ = 'recetasDetalle'
-    idReceta = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    idRecetaDetalle = db.Column(db.Integer)
+    idRecetaDetalle = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    idReceta = db.Column(db.Integer)
     cantidad = db.Column(db.Integer)
     ingrediente = db.Column(db.String(70))
     material = db.Column(db.String(64))
@@ -150,3 +150,11 @@ class Usuarios(db.Model):
     rol = db.Column(db.String(45))
     nombre = db.Column(db.String(50))
     estatus = db.Column(db.String(20))
+
+class Login(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario = db.Column(db.String(50), nullable=False)
+    correo = db.Column(db.String(100), nullable=False)
+    passwor = db.Column(db.String(64), nullable=False) 
+    token = db.Column(db.String(5), nullable=True) 
+    rol = db.Column(db.String(50), nullable=False)
