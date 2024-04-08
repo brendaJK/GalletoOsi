@@ -10,40 +10,14 @@ db = SQLAlchemy()
 
 # Modelo de datos Venta xd
 class Venta(db.Model):
-    __tablename__ = 'venta'
+    _tablename_ = 'venta'
     idVenta = db.Column(db.Integer, primary_key=True)
     fecha = db.Column(db.String(50))
     total = db.Column(db.Float)
     cantidadVendida = db.Column(db.Integer)
-
     idDetalleVenta = db.Column(db.Integer)
     idCaja = db.Column(db.Integer)
     idUsuario = db.Column(db.Integer)
-
-    
-
-class DetalleVenta(db.Model):
-    _tablename_ = 'detalleVenta'
-
-    idCaja = db.Column(db.Integer, db.ForeignKey('caja.idCaja'))
-    idUsuario = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'))
-
-    
-    detallesVenta = relationship('DetalleVenta', backref='venta')
-
-# Modelo de datos DetalleVenta xd
-class DetalleVenta(db.Model):
-    __tablename__ = 'detalleVenta'
-
-    idDetalleVenta = db.Column(db.Integer, primary_key=True)
-    subtotal = db.Column(db.Float)
-    tipoVenta = db.Column(db.String(50))
-    cantidad = db.Column(db.Integer)
-    nombreGalleta = db.Column(db.String(50))
-
-    idVenta = db.Column(db.Integer)
-
-    idVenta = db.Column(db.Integer, db.ForeignKey('venta.idVenta'))
 
     
 # Modelo de datos Caja xd
@@ -133,15 +107,4 @@ class InventarioMateriaPrima(db.Model): #creamos el mapeado para poder crear la 
     estatus=db.Column(db.String(10))
     fechaCaducidad=db.Column(db.DateTime)    
 
-#Modelo de datos Usuario xd
-class Usuario(db.Model):
-    __tablename__ = 'usuario'
-    idUsuario = db.Column(db.Integer, primary_key = True)
-    correo = db.Column(db.String(255))
-    contrasenia = db.Column(db.String(255))
-    token = db.Column(db.String(255))
-    rol = db.Column(db.String(25))
-    nombreCompleto = db.Column(db.String(255))
-    estatusUsuario = db.Column(db.String(25))
-    ventas = relationship("Venta", backref="usuario")
 
