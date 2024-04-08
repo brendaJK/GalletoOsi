@@ -9,8 +9,28 @@ import re
 def produccion():
 
     optRecetas = db.session.query(Recetas.nombreGalleta).all()
-    print(optRecetas)
-    return render_template('produccionModule/produccion.html', optRecetas = optRecetas)
+    # print(optRecetas)
+
+    # receta = request.form.get('Receta')
+
+    # sql = f''' 
+    #         SELECT SUM((cmp.costo/ CAST(imp.cantidad AS DOUBLE)) * rd.cantidad) as costoProduccion FROM inventariomateriaprima AS imp
+
+    #         INNER JOIN compramateriaprima AS cmp ON cmp.idCMP = imp.idCMP
+    #         INNER JOIN recetasDetalle as rd ON rd.idMPI = imp.idMPI
+    #         INNER JOIN recetas AS r ON  r.idReceta =rd.idReceta 
+    #         WHERE r.nombreGalleta LIKE '{receta}' group by r.nombreGalleta;
+    #     '''
+
+
+    # consultaCostProd = db.session.execute(text(sql))
+    # costoProd = consultaCostProd.fetchone()
+    # db.session.commit()
+    # cp = costoProd[0]
+    # print(costoProd[0])
+    
+
+    return render_template('produccionModule/produccion.html', optRecetas = optRecetas )
 
 
 
@@ -26,7 +46,7 @@ def rebajarInventarioMP(receta):
         INNER JOIN recetas r ON r.idReceta = rd.idReceta 
         INNER JOIN compramateriaprima cmp ON cmp.idCMP = imp.idCMP
         INNER JOIN materiaprima mp ON mp.idMP = cmp.idMP
-        WHERE r.nombreGalleta like 'galleta chocolate';
+        WHERE r.nombreGalleta like '{receta}';
         '''
         
         consultaIn = db.session.execute(text(sql))
@@ -69,14 +89,14 @@ def rebajarInventarioMP(receta):
 def guardarProduccion():
 
     create_form = forms.produccionForm(request.form)
-
+    optRecetas = db.session.query(Recetas.nombreGalleta).all()
     if request.method == 'POST':
-
+        
 
         receta = request.form.get('Receta')
 
         sql = f''' 
-            SELECT SUM((cmp.costo/ CAST(imp.cantidad AS DOUBLE)) * rd.cantidad) as costoProduccion FROM inventariomateriaprima AS imp
+            SELECT SUM((cmp.costo/ (CAST(cmp.cantidad AS DOUBLE) * 1000)) * rd.cantidad) as costoProduccion FROM inventariomateriaprima AS imp
 
             INNER JOIN compramateriaprima AS cmp ON cmp.idCMP = imp.idCMP
             INNER JOIN recetasDetalle as rd ON rd.idMPI = imp.idMPI
@@ -91,6 +111,7 @@ def guardarProduccion():
 
         idUs = db.session.query(Usuarios.idUsuario).filter(Usuarios.nombre.like('%Mario%')).scalar()
         fechaProd = datetime.now()
+        fechaCad = request.form.get('fechaCaducidad')   
 
         prod = Produccion(
             #costoProduccion = costoProd,
@@ -98,7 +119,7 @@ def guardarProduccion():
             #fechaCaducidad = fechaCad
             costoProduccion = costoProd[0],
             fechaProduccion = fechaProd,
-            fechaCaducidad = fechaProd + timedelta(days=10),
+            fechaCaducidad = fechaCad,
             idUsuario = idUs
         )
         db.session.add(prod)
@@ -116,7 +137,7 @@ def guardarProduccion():
         print('Operacion realizada.')
 
 
-    return render_template('produccionModule/produccion.html')
+    return render_template('produccionModule/produccion.html', costoProduccion = costoProd[0], optRecetas = optRecetas)
 
 
 

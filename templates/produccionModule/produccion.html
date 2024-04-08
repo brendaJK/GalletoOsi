@@ -26,41 +26,31 @@
 </header>
   <div class="container">
     <h1>Registro de Producción</h1>
-    <form action="#" method="post" id="produccion-form">
-      <div class="form-group">
-        <label for="idProducto">ID del Producto:</label>
-        <input type="text" id="idProducto" name="idProducto" required>
-      </div>
+    <form action="/guardarProduccion" method="post" id="produccion-form">
+      
+      <select name="Receta" id="slctReceta">
+        {% for receta in optRecetas %}
+          <option value="{{receta.nombreGalleta}}">{{ receta.nombreGalleta }}</option>
+        {% endfor %}
+      
+      </select>
       <div class="form-group col-2" style="display: flex;">
-        <label for="fechaProduccion">Producción:</label>
-        <input type="date" id="fechaProduccion" name="fechaProduccion" required>
+        
         <label for="fechaCaducidad">Caducidad:</label>
         <input type="date" id="fechaCaducidad" name="fechaCaducidad" required>
       </div>
       <div class="form-group">
-        <label for="costoProduccion">Costo de Producción:</label>
-        <input type="number" id="costoProduccion" name="costoProduccion" required>
+        <label for="costoProduccion">Costo de Producción:</label> <label for="">{{costoProduccion}}</label>
       </div>
-      <div class="form-group">
-        <label for="cantidadStock">Cantidad en Stock:</label>
-        <input type="number" id="cantidadStock" name="cantidadStock" required>
-      </div>
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="cantidadProducida">Cantidad Producida:</label>
         <input type="number" id="cantidadProducida" name="cantidadProducida" required>
-      </div>
-      <div class="form-group">
-        <label for="estatusProduccion">Estatus de Producción:</label>
-        <select id="estatusProduccion" name="estatusProduccion" required>
-          <option value="En Proceso">En Proceso</option>
-          <option value="Terminada">Terminada</option>
-        </select>
-      </div>
-      <button type="submit" class="btn-submit">Registrar</button>
-      <input type="submit" name="Registrar">
+      </div> -->
+      
+      <input class="btn-submit" type="submit" name="Registrar">
     </form>
-  </div> -->
-
+  </div>
+<!-- 
   <form action="/guardarProduccion" method="POST">
     <select name="Receta" id="slctReceta">
       {% for receta in optRecetas %}
@@ -68,7 +58,7 @@
       {% endfor %}
     </select>
     <input type="submit" name="Registrar">
-  </form>
+  </form> -->
 
 
 </body>
