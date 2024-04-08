@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block container %}
+
+<h4 style="text-align: center; margin-bottom: 20px;">Reporte de ventas</h4>
+
+<!-- Formulario para filtrar -->
+<form name="sent" action="/filtrar_y_imprimir" id="contactForm" method="POST">
+    <div class="row control-group justify-content-center ">
+        <div class="form-group col-xs-12 col-sm-3 float-label-form-group controls" >
+            <label>Mes o dia de filtrado</label>
+            <select name="tipo" id="tipo" class="form-control">
+                <option value="enero">Enero</option>
+                <option value="febrero">Febrero</option>
+                <option value="marzo">Marzo</option>
+                <option value="abril">Abril</option>
+                <option value="Mayo">Mayo</option>
+                <option value="Junio">Junio</option>
+                <option value="Julio">Julio</option>
+                <option value="Agosto">Agosto</option>
+                <option value="Septiembre">Septiembre</option>
+                <option value="Octubre">Octubre</option>
+                <option value="Noviembre">Noviembre</option>
+                <option value="Diciembre">Diciembre</option>
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miercoles">Miercoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sabado">Sabado</option>
+                <option value="Domingo">Domingo</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Cambiamos el tipo de botón a "submit" para que envíe el formulario -->
+
+    <div class="form-group col-xs-12 col-sm-12 floating-label-form-group controls m-4">
+        <button type="submit" class="btn btn-success">
+            Filtar</button>
+    </div>
+    
+</form>
+
+<!-- Tabla de ejemplo -->
+<table id="tablaEjemplo" class="table m-3">
+    <thead class="thead-light">
+        <tr>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Cantidad</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for inven in inventario %}
+        <tr>
+            <td>{{ inven.fecha }}</td>
+            <td>{{ inven.total }}</td>
+            <td>{{ inven.cantidadVendida }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Botón para generar PDF -->
+<button id="generarPDF" class="btn btn-primary">Generar PDF</button>
+
+<!-- Script para filtrar y generar PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.1/html2pdf.bundle.min.js"></script>
+<script>
+    // Función para enviar el formulario y actualizar la tabla
+    
+    // Evento para generar PDF
+    document.getElementById('generarPDF').addEventListener('click', function() {
+        // Configuración de opciones para html2pdf
+        var options = {
+            margin: 10,
+            filename: 'reporte_ventas.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Crear un nuevo documento HTML para el PDF
+        var contenido = `
+            <h4 style="text-align: center; margin-bottom: 20px;">Reporte de ventas</h4>
+            ${document.getElementById('tablaEjemplo').outerHTML}
+        `;
+
+        // Generar PDF
+        html2pdf()
+            .from(contenido)
+            .set(options)
+            .save();
+    });
+
+    
+</script>
+
+{% endblock %}

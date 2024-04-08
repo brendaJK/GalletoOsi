@@ -1,42 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <title>Crispy Craving</title>
+    <link rel="icon" href="logoGalleto2-removebg-preview.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
+    
     <style>
         body {
-            padding-top: 0;
-            background-color: #ffd39a;
-            
+            background-color: #f7f6e4;
+            color: #5f3711;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        
+        header {
+            background-color: #f6f6e2;
+            padding: 20px;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: black;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+        nav ul li {
+            margin-right: 20px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #5f3711;
+        }
+        footer {
+            background-color: #d4c098;
+            text-align: center;
+            padding: 10px;
+        }
     </style>
-    
 </head>
 <body>
-    <div class="background-coockies">
-    
+    <header>
+        <nav>
+            <img
+                      src="logoGalleto2-removebg-preview.png"
+                      height="30"
+                      alt="MDB Logo"
+                      loading="lazy"
+                      style="margin-top: 2px;"
+                      
+                    />
+            <ul>
+                <li><a href="/venta">Venta</a></li>
+                <li><a href="#">Produccion</a></li>
+                <li><a href="/maPrimas">Materia prima</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
     <div class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-success">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <center><div>
-            {% block container %}
-            {% endblock %}
-        </div></center>
+        {%with messages=get_flashed_messages()%}
+        {%if messages%}
+            {%for message in messages%}
+                <div class="alert alert-success">
+                    {{message}}
+                </div>
+            {%endfor%}
+        {%endif%}
+    {%endwith%}
+    {% block container%}
+    {% endblock %}
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+    <footer>
+        <p>Derechos de autor © 2024. Todos los derechos reservados.</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,165 @@
+{% extends "layout.html" %}
+{% block container %}
+
+<center>
+<div class="container">
+    <div class="row">
+        <div style="margin-top: 20px;">
+            <h4> Compra de materias primas </h4>
+        </div>
+        
+        <form name="sent" action="/comprarMateriasPrimas" id="contactForm" method="POST">
+            
+            <div class="row control-group justify-content-center ">
+                <div class="form-group col-xs-6 col-sm-4 floating-label-form-group controls">
+                    {{ form.materia.label(class="control-label") }}
+                    <select id="materia" name="materia" class="form-control"> <!-- Corrección: el nombre del campo debe ser "idMP" -->
+                        {% for opcion_id, opcion_nombre in form.materia.choices %} <!-- Corrección: itera sobre las opciones de idMP -->
+                            <option value="{{ opcion_id }}">{{ opcion_nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group col-xs-6 col-sm-5 floating-label-form-group controls">
+                    {{ form.proveedor.label(class="control-label") }}
+                    <select id="proveedor" name="proveedor" class="form-control">
+                        {% for opcion_id, opcion_nombre in form.proveedor.choices %}
+                            <option value="{{ opcion_id }}">{{ opcion_nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-xs-6 col-sm-2 float-label-form-group">
+                    <label>Costo</label>
+                    <input type="number" name="costo" id="costo" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                </div>
+                <div class="form-group col-xs-6 col-sm-2 float-label-form-group">
+                    <label>Cantidad</label>
+                    <input type="number" name="cantidad" id="cantidad" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                </div>
+                <div class="form-group col-xs-12 col-sm-4 float-label-form-group controls" >
+                    <label>Presentacion</label>
+                        <select name="presentacion" id="presentacion" class="form-select" aria-label="Default select example">
+                            <option value="Galones">Galones</option>
+                            <option value="Medios galones">Medios galones</option>
+                            <option value="Litros">Litros</option>
+                            <option value="Costal">Costal  10 Kg</option>
+                            <option value="Medio costal">Medio costal</option>
+                            <option value="Kilos">Kilos</option>
+                            <option value="Pieza">Pieza</option>
+                            <option value="Caja de 6 piezas">Caja de 6 piezas</option>
+                            <option value="Caja de 12 piezas">Caja de 12 piezas</option>
+                            <option value="Caja de 24 piezas">Caja de 24 piezas (pieza 90g)</option>
+                            <option value="Cartera de 12 piezas">Cartera de 12 piezas</option>
+                            <option value="Cartera de 18 piezas">Cartera de 18 piezas</option>
+                            <option value="Cartera de 30 piezas">Cartera de 30 piezas</option>
+                            <option value="Cartera de 90 piezas">Cartera de 90 piezas</option>
+                            <option value="Cartera de 360 piezas">Cartera de 360 piezas</option>
+                        </select>
+                </div>
+                <div class="form-group col-xs-12 col-sm-3 floating-label-form-group controls">
+                    <label for="fechaCaducidad">Fecha caducidad</label><br>
+                    <input type="date" name="fechaCaducidad" id="fechaCaducidad" class="form-control" required>
+                </div>
+                
+                <div class="form-group col-xs-12 col-sm-12 float-label-form-group controls m-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus"></i>
+                    Guardar compra
+                    </button>
+                </div>
+            
+            </div>
+            
+        
+        </form>
+    </div>
+
+    <div class="col-xs-7 col-sm-7 m-5">
+        <h4>Lista de compras </h4>
+        <table class="table m-3" id="final">
+            <thead class="thead-light">
+                <tr class="table-active">
+                    <th>Materia Prima</th>
+                    <th>Nombre Proveedor</th>
+                    <th>Costo</th>
+                    <th>Cantidad</th>
+                    <th>Fecha compra</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compraMa in compraMateria %}
+                <tr>
+                    <td>{{ compraMa.nombreMa }}</td>  <!-- Mostrar el nombre de la materia prima -->
+                    <td>{{ compraMa.nombreP }}</td>  <!-- Mostrar el nombre del proveedor -->
+                    <td>{{ compraMa.costo }}</td>
+                    <td>{{ compraMa.cantidad }}</td>
+                    <td>{{ compraMa.fechaCompra }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</center>
+
+<script>
+    function soloNumeros(event) {
+        var charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+    function actualizarPresentacion() {
+        // Obtener el valor seleccionado de la materia prima
+        var materiaSelect = document.getElementById("materia");
+        var materiaSeleccionada = materiaSelect.options[materiaSelect.selectedIndex].value;
+
+        // Realizar una solicitud AJAX para obtener el tipo de producto de la materia prima seleccionada
+        fetch(`/obtener_tipo_producto/${materiaSeleccionada}`)
+            .then(response => response.json())
+            .then(data => {
+                // Obtener el tipo de producto
+                var tipoProducto = data.tipoPro;
+
+                // Obtener el elemento select de presentación
+                var presentacionSelect = document.getElementById("presentacion");
+
+                // Limpiar las opciones actuales
+                presentacionSelect.innerHTML = "";
+
+                // Definir las opciones de presentación según el tipo de producto
+                if (tipoProducto === "Liquido") {
+                    // Opciones para producto líquido
+                    var opcionesPresentacion = ["Galones", "Medios galones", "Litros"];
+                } else if (tipoProducto === "Seco") {
+                    // Opciones para producto seco
+                    var opcionesPresentacion = ["Costal", "Medio costal", "Kilos"];
+                } else {
+                    // Opciones por defecto
+                    var opcionesPresentacion = ["Pieza", "Caja de 6 piezas", "Caja de 12 piezas", "Cartera de 12 piezas", "Cartera de 18 piezas", "Cartera de 30 piezas", "Cartera de 90 piezas", "Cartera de 360 piezas"];
+                }
+
+                // Agregar las opciones al elemento select de presentación
+                opcionesPresentacion.forEach(function(opcion) {
+                    var option = document.createElement("option");
+                    option.text = opcion;
+                    option.value = opcion;
+                    presentacionSelect.add(option);
+                });
+            })
+            .catch(error => console.error('Error al obtener el tipo de producto:', error));
+    }
+
+    // Llamar a la función cuando se cambie la materia prima seleccionada
+    document.getElementById("materia").addEventListener("change", actualizarPresentacion);
+
+    // Llamar a la función inicialmente para que se configure la presentación adecuada al cargar la página
+    actualizarPresentacion();
+</script>
+
+{% endblock %}
+
+
+
