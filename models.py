@@ -80,4 +80,28 @@ class Usuario(db.Model):
     rol = db.Column(db.String(25))
     nombreCompleto = db.Column(db.String(255))
     estatusUsuario = db.Column(db.String(25))
-    ventas = relationship("Venta", backref="usuario")
+
+class CompraMateriaPrima(db.Model): 
+    _tablename_='compraMateriaPrima'
+    idCMP=db.Column(db.Integer,primary_key=True)
+    idMP=db.Column(db.Integer)
+    idProveedor=db.Column(db.Integer)
+    costo=db.Column(db.Float)
+    cantidad=db.Column(db.String(100))
+    estatus=db.Column(db.String(10))
+    idUsuario=db.Column(db.Integer)
+    fechaCompra=db.Column(db.DateTime,default=datetime.now)
+
+class MateriaPrimas(db.Model): 
+    idMP=db.Column(db.Integer,primary_key=True)
+    nombreMa=db.Column(db.String(100))
+    tipoPro=db.Column(db.String(10))
+    estatus=db.Column(db.String(10))
+
+class Proveedor(db.Model): 
+    _tablename_='proveedor' 
+    idProveedor=db.Column(db.Integer,primary_key=True) 
+    razonSocial=db.Column(db.String(300)) 
+    nombreP=db.Column(db.String(100))
+    estatus=db.Column(db.String(8))
+    fechaAgregado=db.Column(db.DateTime,default=datetime.now)

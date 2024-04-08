@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
-from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja
+from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja, proveedorpago, pagoMateriaPrima, agregarDinero
 from templates.produccionModule.produccionController import produccion
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -15,7 +15,9 @@ def page_not_found(e):
 app.route('/venta')(venta)
 app.route('/confirmar-venta', methods=['POST'])(confirmar_venta)
 app.route('/actualizar_caja', methods=['POST'])(actualizar_caja)
-
+app.route('/pago-proveedor', methods=['POST'])(proveedorpago)
+app.route('/pago-materiaPrima', methods=['POST'])(pagoMateriaPrima)
+app.route('/agregar-dinero-caja', methods=['POST'])(agregarDinero)
 app.route('/produccion')(produccion)
 
 
