@@ -5,8 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Producción - Tienda de Galletas</title>
   <link rel="stylesheet" href="../../static/produccionStyle/produccion.css">
+  <link rel="stylesheet" href="../../static/css/header.css">
+
 </head>
 <body>
+  <header class="header">
+    <div class="navbar">
+      <ul>
+        <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('produccion') }}">Producción</a></li>
+        <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
+        <li><a href="{{ url_for('venta') }}">Ventas</a></li>
+      </ul>
+    </div>
+    <div class="cerrar">
+        <a href="{{ url_for('vistaLogin') }}">
+            <button class="btn btn-primary" style="background: black;color: white; border: none;">Cerrar sesion</button>
+        </a>
+    </div>
+</header>
   <div class="container">
     <h1>Registro de Producción</h1>
     <form action="#" method="post" id="produccion-form">

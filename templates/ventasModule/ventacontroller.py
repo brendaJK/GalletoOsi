@@ -9,6 +9,7 @@ def venta():
 
 
 
+
 def guardar_venta():
     if request.method == 'POST':
         ventas_clase = forms.VentasForm(request.form)

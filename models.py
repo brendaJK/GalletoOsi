@@ -14,8 +14,8 @@ class Venta(db.Model):
     nombreCliente = db.Column(db.String(50))
     cantidad = db.Column(db.Integer)
 
-    db.Column(db.Integer, db.ForeignKey('inventario.id'), nullable=False)
-    producto = db.relationship('Inventario', backref='detalleVenta', lazy=True)
+    # db.Column(db.Integer, db.ForeignKey('inventario.id'), nullable=False)
+    # producto = db.relationship('Inventario', backref='detalleVenta', lazy=True)
     
     
 # Modelo de datos Caja xd
@@ -60,3 +60,30 @@ class MermaProduccion(db.Model):
 #     idProveedor = db.Column(db.Integer)
 #     nombreMateriaP = db.Column(db.String(64))
 #     cantidad = db.Column(db.Double)
+
+
+class Login(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    correo = db.Column(db.String(100), nullable=False)
+    contrasenia = db.Column(db.String(64), nullable=False) 
+    token = db.Column(db.String(220), nullable=True) 
+    rol = db.Column(db.String(50), nullable=False)
+    
+class Recetas(db.Model):
+    __tablename__ = 'recetas'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(220), nullable=False)
+    descripcion = db.Column(db.String(220), nullable=False)
+    cantidadGalletas = db.Column(db.String(220), nullable=True)
+    pesoGalletas = db.Column(db.String(220), nullable=False)
+    imagen = db.Column(db.String(225), nullable=True)
+    detalles = db.relationship('RecetasDetalle', backref='receta', lazy=True)
+
+class RecetasDetalle(db.Model):
+    __tablename__ = 'recetas_detalle'
+    id = db.Column(db.Integer, primary_key=True)
+    iReceta = db.Column(db.Integer, db.ForeignKey('recetas.id'), nullable=False)
+    cantidad = db.Column(db.String(220), nullable=False)
+    ingrediente = db.Column(db.String(220), nullable=True)
+    material = db.Column(db.String(220), nullable=False)

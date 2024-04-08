@@ -10,10 +10,10 @@
 </head>
 <body>
   <div class="login-container">
-    <img src="/static/images/logo2.png" alt="Galletas">
-    <form class="login-form" action="/olvidar-contrasena" id="formLogin" method="POST">
+    <img src="../../static/images/galleta.png" alt="Galletas">
+    <form class="login-form" action="{{ url_for('olvidar_contrasena') }}" id="formLogin" method="POST">
       <label for="">Ingresa tu correo electronico</label>
-      <input type="email" data-validation-engine="validate[required,custom[email]]" id="email" name="email"  oninput="validarInput(this)">
+      <input type="email" data-validation-engine="validate[required,custom[email]]" id="correo" name="correo"  oninput="validarInput(this)">
       <input type="submit" value="Enviar">
     </form>
     {% with messages = get_flashed_messages() %}
