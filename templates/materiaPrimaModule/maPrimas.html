@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+{% block container %}
+
+<center>
+<div class="container" >
+    <div class="row">
+        <center>
+            <div style="margin-top: 20px;">
+                <h4> Materias primas </h4>
+            </div>
+        
+        <form name="sent" action="/maPrimas" id="contactForm" method="POST">
+
+            <div class="form-group col-xs-12 col-sm-12 floating-label-form-group controls m-4">
+                <a href="comprarMateriasPrimas" class="btn btn-success">
+                    <i class="bi bi-plus"></i>
+                    Comprar materia prima
+                </a>
+            </div>
+
+            <div class="row control-group">
+               <center></center> 
+                <div class="form-group col-xs-12 col-sm-6 float-label-form-group controls" >
+                    <label>Tipo de materia</label>
+                        <select name="tipoPro" id="tipoPro" class="form-select" aria-label="Default select example">
+                            <option value="Secos">Secos</option>
+                            <option value="Liquidos">Liquidos</option>
+                            <option value="Unidad">Unidad</option>
+                        </select>
+                </div>
+                <div class="form-group col-xs-12 col-sm-6 floating-label-form-group controls">
+                    <label for="nombreMa">Nombre materia prima</label><br>
+                    <input type="text" name="nombreMa" id="nombreMa" class="form-control" required>
+                    
+                </div>
+                
+                <div class="form-group col-xs-12 col-sm-12 floating-label-form-group controls m-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus"></i>
+                        Agregar materia prima</button>
+                </div>
+                
+            </center> 
+            </div>  
+    </div>
+</form>
+
+    <div class="col-xs-7 col-sm-8 m-5">
+        <h4>Lista de materias primas </h4>
+            
+        <table class="table m-3" id="final">
+            <thead class="thead-light">
+                <tr class="table-active">
+                    
+                    <th>Materia prima</th>
+                    <th>Tipo materia</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mater in materia %}
+                <tr>
+                    <tr >
+                        <td>{{ mater.nombreMa }}</td>
+                        <td>{{ mater.tipoPro }}</td>
+                        <td>
+                            <form action="/eliminar_materia/{{ mater.idMP }}" method="POST">
+                                
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                        </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+            </div>
+
+
+    </div>
+
+</div>
+</div>
+</center>
+{%endblock%}
+
+
+
+<script>
+    function soloNumeros(event) {
+        var charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+    function llenarFormulario(index) {
+        var fila = document.getElementById('fila-' + index);
+        var nombreMa = fila.cells[0].innerText;
+        var cantidad = fila.cells[1].innerText;
+        var proveedor = fila.cells[2].innerText;
+        var tipoPro = fila.cells[3].innerText;
+        var fechaAgregado = fila.cells[4].innerText;
+        
+        // Llenar los campos del formulario con los valores capturados
+        document.getElementById('nombreMa').value = nombreMa;
+        document.getElementById('cantidad').value = cantidad;
+        document.getElementById('proveedor').value = proveedor;
+        document.getElementById('tipoPro').value = tipoPro;
+        document.getElementById('fechaCa').value = fechaAgregado;
+    }
+    function mostrarDescripcion(id) {
+        // Mostrar el campo de descripción correspondiente al botón de eliminar
+        document.getElementById('descripcion' + id).style.display = 'block';
+        // Cambiar el texto del botón de eliminar a "Guardar Descripción"
+        document.getElementById('eliminarBtn').innerText = 'Guardar Descripción';
+        // Deshabilitar el botón de eliminar para evitar clics adicionales
+        document.getElementById('eliminarBtn').disabled = true;
+        // Habilitar el botón de agregar materia prima
+        document.getElementById('agregarBtn').disabled = false;
+    }
+    </script>
