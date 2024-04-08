@@ -2,7 +2,9 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 from datetime import datetime
 from sqlalchemy import ForeignKey
+
 from sqlalchemy.orm import relationship
+
 
 db = SQLAlchemy()
 
@@ -28,18 +30,13 @@ class DetalleVenta(db.Model):
     cantidad = db.Column(db.Integer)
     nombreGalleta = db.Column(db.String(50))
     idVenta = db.Column(db.Integer, db.ForeignKey('venta.idVenta'))
+
     
 # Modelo de datos Caja xd
 class Caja(db.Model):
     __tablename__ = 'caja'
     idCaja = db.Column(db.Integer, primary_key=True)
     dineroCaja = db.Column(db.Float)
-
-class PagoProveedor(db.Model):
-    __tablename__ = 'pagoProveedor'
-    idPagoProveedor = db.Column(db.Integer, primary_key=True)
-    fecha = db.Column(db.String(50))
-    Total = db.Column(db.Float)
 
 # Modelo de datos Produccion
 class Produccion(db.Model):
@@ -70,6 +67,52 @@ class MermaProduccion(db.Model):
     Descripcion = db.Column(db.String(150))
     Estatus = db.Column(db.String(25))
 
+
+class Proveedor(db.Model): #creamos el mapeado para poder crear la tabla
+    __tablename__='proveedor' # nos permite agregar un  nombre especifico
+    idProveedor=db.Column(db.Integer,primary_key=True) #necesario el id para fungir como clave primaria y permita generar el campo siempre lo requiere 
+    razonSocial=db.Column(db.String(300)) # con db.Column asignando el tipo de dato
+    nombreP=db.Column(db.String(100))
+    estatus=db.Column(db.String(8))
+    fechaAgregado=db.Column(db.DateTime,default=datetime.now)  # Aquí está el cambio
+    
+class MateriaPrimas(db.Model): #creamos el mapeado para poder crear la tabla
+    __tablename__='materiaPrima' # nos permite agregar un  nombre especifico
+    idMP=db.Column(db.Integer,primary_key=True)
+    nombreMa=db.Column(db.String(100))
+    tipoPro=db.Column(db.String(10))
+    estatus=db.Column(db.String(10))
+    
+class CompraMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabla
+    __tablename__='compraMateriaPrima' # nos permite agregar un  nombre especifico
+    idCMP=db.Column(db.Integer,primary_key=True)
+    idMP=db.Column(db.Integer)
+    idProveedor=db.Column(db.Integer)
+    costo=db.Column(db.Float)
+    cantidad=db.Column(db.String(100))
+    estatus=db.Column(db.String(10))
+    idUsuario=db.Column(db.Integer)
+    fechaCompra=db.Column(db.DateTime,default=datetime.now)
+
+class MermaMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabla
+    __tablename__='mermaMateriaPrima' # nos permite agregar un  nombre especifico
+    idMermaMa=db.Column(db.Integer,primary_key=True)
+    idMP=db.Column(db.Integer)
+    idMPI=db.Column(db.Integer)
+    costo=db.Column(db.Float)
+    descripcion=db.Column(db.String(100))
+    estatus=db.Column(db.String(10))
+    idUsuario=db.Column(db.Integer)
+    fecha=db.Column(db.DateTime)
+
+class InventarioMateriaPrima(db.Model): #creamos el mapeado para poder crear la tabla
+    __tablename__='inventarioMateriaPrima' # nos permite agregar un  nombre especifico
+    idMPI=db.Column(db.Integer,primary_key=True)
+    idCMP=db.Column(db.Integer)
+    cantidad=db.Column(db.String(100))
+    estatus=db.Column(db.String(10))
+    fechaCaducidad=db.Column(db.DateTime)    
+
 #Modelo de datos Usuario xd
 class Usuario(db.Model):
     __tablename__ = 'usuario'
@@ -80,28 +123,3 @@ class Usuario(db.Model):
     rol = db.Column(db.String(25))
     nombreCompleto = db.Column(db.String(255))
     estatusUsuario = db.Column(db.String(25))
-
-class CompraMateriaPrima(db.Model): 
-    _tablename_='compraMateriaPrima'
-    idCMP=db.Column(db.Integer,primary_key=True)
-    idMP=db.Column(db.Integer)
-    idProveedor=db.Column(db.Integer)
-    costo=db.Column(db.Float)
-    cantidad=db.Column(db.String(100))
-    estatus=db.Column(db.String(10))
-    idUsuario=db.Column(db.Integer)
-    fechaCompra=db.Column(db.DateTime,default=datetime.now)
-
-class MateriaPrimas(db.Model): 
-    idMP=db.Column(db.Integer,primary_key=True)
-    nombreMa=db.Column(db.String(100))
-    tipoPro=db.Column(db.String(10))
-    estatus=db.Column(db.String(10))
-
-class Proveedor(db.Model): 
-    _tablename_='proveedor' 
-    idProveedor=db.Column(db.Integer,primary_key=True) 
-    razonSocial=db.Column(db.String(300)) 
-    nombreP=db.Column(db.String(100))
-    estatus=db.Column(db.String(8))
-    fechaAgregado=db.Column(db.DateTime,default=datetime.now)

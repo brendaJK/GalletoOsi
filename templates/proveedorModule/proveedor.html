@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block container %}
+<center>
+<div class="container">
+    <div class="row">
+        <div style="margin-top: 20px;">
+            <h4> Proveedores </h4>
+        </div>
+        
+        <form name="sent" action="/proveedores" id="contactForm" method="POST">
+            <div class="row control-group">
+                <div class="form-group col-xs-6 col-sm-6 float-label-form-group">
+                    <label for="razonSocial">Razon social</label><br>
+                    <input type="text" name="razonSocial" id="razonSocial" class="form-control" required>
+                    
+                </div>
+                <div class="form-group col-xs-6 col-sm-6 float-label-form-group">
+                    <label for="nombreP">Nombre proveedor</label><br>
+                    <input type="text" name="nombreP" id="nombreP" class="form-control" required>
+                </div>
+                
+                <div class="form-group col-xs-12 col-sm-12 float-label-form-group controls m-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus"></i>
+                        Agregar proveedor
+                    </button>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+
+    <div class="col-xs-7 col-sm-7 m-5">
+        <h4>Lista de proveedores </h4>
+        <table class="table m-3" id="final">
+            <thead class="thead-light">
+                <tr class="table-active">
+                    <th>Razon Social</th>
+                    <th>Nombre Proveedor</th>
+                    <th>Fecha agregado</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prove in proveedor %}
+                <tr>
+                    <td>{{ prove.razonSocial }}</td>
+                    <td>{{ prove.nombreP }}</td>
+                    <td>{{ prove.fechaAgregado }}</td>
+                    <td>
+                        <form action="/eliminar_proveedor/{{ prove.idProveedor }}" method="POST">
+                            
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</center>
+{% endblock %}

@@ -1,4 +1,4 @@
-import os 
+import os
 from sqlalchemy import create_engine
 import urllib
 
@@ -8,7 +8,5 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    #SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@127.0.0.1/crispy'
-    # esta es mi xd Ulises
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:InaliQ01_21@127.0.0.1/crispy'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
