@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, url_for
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja, proveedorpago, pagoMateriaPrima, agregarDinero
-from templates.produccionModule.produccionController import produccion
+from templates.produccionModule.produccionController import produccion, guardarProduccion
 from templates.loginModule.loginController import login, verificar_token, olvidar_contrasena, restablecer_contrasena, dashbord
 from templates.recetasModule.recetasController import recetas, eliminar_ingrediente, recetas_detalle, agregar_ingrediente
 from templates.loginModule.loginController import vistaLogin
@@ -56,6 +56,10 @@ app.route('/verificar_token', methods=['GET', 'POST'])(verificar_token)
 app.route('/olvidar_contrasena', methods=['GET', 'POST'])(olvidar_contrasena)
 app.route('/restablecer_contrasena/<token>', methods=['GET', 'POST'])(restablecer_contrasena)
 app.route('/dashbord')(dashbord)
+
+
+app.route('/produccion')(produccion)
+app.route('/guardarProduccion', methods=['GET', 'POST'])(guardarProduccion)
 
 
 if __name__ == '__main__':

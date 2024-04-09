@@ -1,11 +1,11 @@
 from flask import render_template, request, redirect, url_for
-from models import db, Recetas, RecetasDetalle
+from models import db, Recetas, RecetaDetalle
 
 def recetas():
     recetas = Recetas.query.all()
     data_recetas = []
     for receta in recetas:
-        detalles = RecetasDetalle.query.filter_by(iReceta=receta.id).all()
+        detalles = RecetaDetalle.query.filter_by(iReceta=receta.id).all()
         ingredientes = []
         materiales = []
         for detalle in detalles:
@@ -24,11 +24,11 @@ def recetas():
 
 def recetas_detalle(receta_id):
     receta = Recetas.query.get_or_404(receta_id)
-    detalles = RecetasDetalle.query.filter_by(iReceta=receta_id).all()
+    detalles = RecetaDetalle.query.filter_by(iReceta=receta_id).all()
     return render_template('recetasModule/recetas_detalle.html', receta=receta, detalles=detalles, idReceta=receta_id)
 
 def eliminar_ingrediente(detalle_id):
-    detalle = RecetasDetalle.query.get(detalle_id)
+    detalle = RecetaDetalle.query.get(detalle_id)
     if detalle:
         db.session.delete(detalle)
         db.session.commit()
@@ -36,7 +36,7 @@ def eliminar_ingrediente(detalle_id):
 def agregar_ingrediente():
     if request.method == 'POST':
         try:    
-            detalle = RecetasDetalle(
+            detalle = RecetaDetalle(
                 iReceta = int(request.form['iReceta']),
                 cantidad = request.form['gramos'], 
                 ingrediente = request.form['ingrediente'],

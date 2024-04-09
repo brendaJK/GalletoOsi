@@ -42,13 +42,9 @@ class Caja(db.Model):
 class Produccion(db.Model):
     __tablename__ = 'produccion'
     idProduccion = db.Column(db.Integer, primary_key = True)
-    idReceta = db.Column(db.Integer)
     fechaProduccion = db.Column(db.Date)
     costoProduccion = db.Column(db.Double)
     fechaCaducidad = db.Column(db.Date)
-    nombreProducto = db.Column(db.String(150))
-    cantiadadProducida = db.Column(db.Integer)
-    Estatus = db.Column(db.String(25))
     idUsuario = db.Column(db.Integer)
 
 # Modelo de datos de producto
@@ -87,6 +83,7 @@ class RecetaDetalle(db.Model):
     cantidad = db.Column(db.Integer)
     ingrediente = db.Column(db.String(70))
     material = db.Column(db.String(64))
+    idIngrediente = db.Column(db.Integer)
 
 
 # Modelo de datos de proveedor
