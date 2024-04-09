@@ -4,26 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión - Don Galleto</title>
-  <link rel="stylesheet" href="/static/css/login.css">
+  <link rel="stylesheet" href="../../static/css/login.css">
   <link rel="stylesheet" href="/static/plugins/sweetalert/sweetalert.css">
   <link rel="stylesheet" href="/static/plugins/validationEngine/validationEngine.jquery.css">
   <style>
     .input{
       position: relative;
     }
+    a{
+      outline:none;
+      color: black;
+    }
+    .registrarme{
+      width: 100%;
+      border-radius: 20px;
+      color: white;
+      background: black;
+      border: none;
+      padding: 8px 0;
+    }
+    .olvide{
+      text-align: center;
+      padding: 8px 0 10px;
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
-    <img src="" alt="Galletas">
-    <form class="login-form" action="/" id="formLogin" method="post">
+    <img src="../../static/images/galleta.png" alt="Galletas">
+    <form class="login-form" action="{{ url_for('login') }}" id="formLogin" method="post">
       <div class="input">
         <label for="">Correo Electronico</label>
-        <input type="email" data-validation-engine="validate[required,custom[email]]" id="email" name="email"  oninput="validarInput(this)">
+        <input type="email" data-validation-engine="validate[required,custom[email]]" id="correo" name="correo"  oninput="validarInput(this)">
       </div>
       <div class="input">
         <label for="">Contraseña</label>
-        <input type="password" data-validation-engine="validate[required]" id="passwor" name="passwor"  oninput="validarInput(this)">
+        <input type="password" data-validation-engine="validate[required]" id="contrasenia" name="contrasenia"  oninput="validarInput(this)">
       </div>
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -34,8 +50,10 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-      <a href="{{ url_for('olvidar_contrasena') }}">¿Olvidaste tu contraseña?</a>
-      <button onclick="validarCampos()">Iniciar</button>
+      <div class="olvide">
+        <a href="{{ url_for('olvidar_contrasena') }}">¿Olvidaste tu contraseña?</a>
+      </div>
+      <button class="registrarme" onclick="validarCampos()">Iniciar</button>
     </form>
   </div>
   <script src="/static/plugins/sweetalert/sweetalert.min.js"></script>

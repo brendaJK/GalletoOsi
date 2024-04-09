@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, current_app, json
 from models import db
 from sqlalchemy import text, update 
 import forms
-from models import Venta, Caja, DetalleVenta,Produccion
+from models import Venta, Caja, DetalleVenta, Produccion, CompraMateriaPrima, Proveedor, MateriaPrimas
 from datetime import datetime
 
 
@@ -100,7 +100,7 @@ def confirmar_venta():
                         cantidad_vendida_total += cantidad_disponible
                     break  
 
-    # Crear detalles de venta
+ 
     detalles_insertados = []
     for detalle in detalles_venta:
         nuevo_detalle = DetalleVenta(
@@ -108,38 +108,80 @@ def confirmar_venta():
             tipoVenta=detalle['tipoVenta'],
             cantidad=detalle['cantidad'],
             nombreGalleta=detalle['tipoGalleta'],
-            idVenta=None  # No asignar ID de venta aquí
+            idVenta=None  
         )
         detalles_insertados.append(nuevo_detalle)
 
     
-    # Crear la venta
     nueva_venta = Venta(
         fecha=str(datetime.now()),
         total=total_venta,
         cantidadVendida=cantidad_vendida_total,
         idCaja=1,
-        idUsuario=1  # Asigna el ID de usuario correspondiente
+        idUsuario=1 
     )
     nueva_venta.detallesVenta.extend(detalles_insertados)
 
 
-    # Agregar la nueva venta a la sesión y hacer commit para insertarla en la base de datos
+   
     db.session.add(nueva_venta)
     db.session.commit()
    
     return jsonify({'message': 'Datos de venta procesados correctamente'}), 200
 
-
-
-
-
-
-
-
-
-
 def calcular_cantidad_galletas(cantidad_gramos):
-    peso_por_galleta = 25  # Peso promedio de cada galleta en gramos
+    peso_por_galleta = 25  # Peso promedio de cada galleta
     cantidad_galletas = cantidad_gramos // peso_por_galleta
     return cantidad_galletas
+
+def proveedorpago():
+        compras = db.session.query(
+        CompraMateriaPrima.idCMP,
+        Proveedor.razonSocial,
+        MateriaPrimas.nombreMa,
+        CompraMateriaPrima.costo,
+        CompraMateriaPrima.cantidad,
+        CompraMateriaPrima.estatus
+    ).join(Proveedor, CompraMateriaPrima.idProveedor == Proveedor.idProveedor
+    ).join(MateriaPrimas, CompraMateriaPrima.idMP == MateriaPrimas.idMP
+    ).filter(CompraMateriaPrima.estatus == 'Pendiente'
+    ).all()
+
+        return render_template('ventasModule/pagoProveedor.html', compras=compras)
+
+def pagoMateriaPrima():
+        data = request.get_json()
+        idCMP = data['idCMP']
+        totalPagar = float(data['totalPagar'])
+        nombreProducto = data['nombreProducto']
+
+        compra = CompraMateriaPrima.query.get(idCMP)
+        compra.estatus = 'Pagado'
+        db.session.commit()
+
+    
+        caja = Caja.query.first() 
+        caja.dineroCaja -= totalPagar
+        db.session.commit()
+
+        return jsonify({'message': 'Pago realizado correctamente'}), 200
+
+def agregarDinero():
+    data = request.get_json()
+    monto = data.get('monto')
+
+    if monto is None:
+        return jsonify({'error': 'Falta el monto'}), 400
+
+    try:
+        monto = float(monto)
+    except ValueError:
+        return jsonify({'error': 'El monto debe ser un número válido'}), 400
+    
+    caja = Caja.query.first()  
+    if caja:
+        caja.dineroCaja += monto
+        db.session.commit()
+        return jsonify({'message': f'Se han agregado ${monto} a la caja correctamente'}), 200
+    else:
+        return jsonify({'error': 'No se encontró la caja'}), 404
