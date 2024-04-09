@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 from datetime import datetime
+from flask_login import UserMixin
+
 db = SQLAlchemy()
 
 # Modelo de datos para Venta xd
@@ -60,3 +62,41 @@ class MermaProduccion(db.Model):
 #     idProveedor = db.Column(db.Integer)
 #     nombreMateriaP = db.Column(db.String(64))
 #     cantidad = db.Column(db.Double)
+
+class Login(db.Model, UserMixin):
+    __tablename__ = 'login'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    correo = db.Column(db.String(100), nullable=False)
+    contrasenia = db.Column(db.String(64), nullable=False) 
+    token = db.Column(db.String(220), nullable=True) 
+    rol = db.Column(db.String(50), nullable=False)
+    def get_id(self):
+        return str(self.id)
+
+    def is_active(self):
+        return True
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+    
+class Recetas(db.Model):
+    __tablename__ = 'recetas'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(220), nullable=False)
+    descripcion = db.Column(db.String(220), nullable=False)
+    cantidadGalletas = db.Column(db.String(220), nullable=True)
+    pesoGalletas = db.Column(db.String(220), nullable=False)
+    imagen = db.Column(db.String(225), nullable=True)
+    detalles = db.relationship('RecetasDetalle', backref='receta', lazy=True)
+
+class RecetasDetalle(db.Model):
+    __tablename__ = 'recetas_detalle'
+    id = db.Column(db.Integer, primary_key=True)
+    iReceta = db.Column(db.Integer, db.ForeignKey('recetas.id'), nullable=False)
+    cantidad = db.Column(db.String(220), nullable=False)
+    ingrediente = db.Column(db.String(220), nullable=True)
+    material = db.Column(db.String(220), nullable=False)

@@ -1,37 +1,21 @@
 import os
-from dotenv import load_dotenv
+from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_bcrypt import generate_password_hash
 import ssl
 import smtplib
 import random
 import string
 from email.message import EmailMessage
+from models import Login
+from models import db
+bcrypt = Bcrypt()
 
-app = Flask(__name__)
-load_dotenv()
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
 
-#CONECCION A BASE DE DATOS  
-class Config(object):
-    SECRET_KEY = 'Clave nueva'
-    SESSION_COOKIE_SECURE = False
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:admin@127.0.0.1/proyectoFinal'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-app.config.from_object(Config)
-#MI MODELO DEL LOGIN
-class Login(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    usuario = db.Column(db.String(50), nullable=False)
-    correo = db.Column(db.String(100), nullable=False)
-    passwor = db.Column(db.String(64), nullable=False) 
-    token = db.Column(db.String(5), nullable=True) 
-    rol = db.Column(db.String(50), nullable=False)
-    
 #PASSWORD DE GOOGLE PARA PODER HACER LA VERIFICACIONES Y RECUPERAR
-passwordCorreo = os.getenv("password")
+passwordCorreo = "uhiv hvpi sebw xukk"
 email_sender = "cristianleyvacr7@gmail.com"
 
 # TOKEN PARA VERIFICACION
@@ -39,7 +23,8 @@ def generar_token():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
 #TOKEN ARA REUPERAR CONTRASEÑA
 def generar_token2():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=15))
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+
 #FUNCIO PARA ENVIAR CORREO DE VERIFICACION DE DOS PASOS
 def enviar_correo(email, token):
     subject = "Validacion de dos pasos"
@@ -68,37 +53,45 @@ def enviar_correo(email, token):
         smtp.sendmail(email_sender, email, em.as_string())
 
 # FUNCION DEL LOGIN
-@app.route('/', methods=['GET', 'POST'])
+def vistaLogin():
+    contrasenia_encriptada= ""
+    
+    contrasenia_encriptada = generate_password_hash("Administrador").decode('utf-8')
+    nuevo_registro_2 = Login(nombre="Brenda", correo="es.bren.27.gtz.p@gmail.com", contrasenia=contrasenia_encriptada, rol="Empleado")
+    db.session.add(nuevo_registro_2)
+    db.session.commit()
+    return render_template('loginModule/login.html') 
+
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        passwor = request.form['passwor']
-        usuario = Login.query.filter_by(correo=email).first()
+        correo = request.form['correo']
+        contrasenia = request.form['contrasenia']
+        usuario = Login.query.filter_by(correo=correo).first()
         if usuario:
             token = generar_token()
             usuario.token = token
+            login_user(usuario)
             db.session.commit()            
-            enviar_correo(email, token)            
+            enviar_correo(correo, token)            
             return redirect(url_for('verificar_token'))
         else:
             flash("Correo electrónico o contraseña incorrectos", "error")
-            return render_template('login.html')
+            return render_template('loginModule/login.html')
         
-    return render_template('login.html')
+    return render_template('loginModule/login.html')
 
 #FUNCION DE VISTA DE VERIFICACION DE TOKEN
-@app.route('/verificar-token', methods=['GET', 'POST'])
 def verificar_token():
     if request.method == 'POST':
-        email = request.form['email']
+        correo = request.form['correo']
         token = request.form['token']
-        usuario = Login.query.filter_by(correo=email, token=token).first()
+        usuario = Login.query.filter_by(correo=correo, token=token).first()
         if usuario:
-            return redirect(url_for('home'))
+            return redirect(url_for('dashbord'))
         else:
             flash("Correo electrónico o token incorrectos", "error")
-            return render_template('verificar_token.html')
-    return render_template('verificar_token.html')
+            return render_template('loginModule/verificar_token.html')
+    return render_template('loginModule/verificar_token.html')
 
 #CORREO PARA RECUERAR CONTRASEÑA
 def enviar_correo_restauracion(email, token):
@@ -127,24 +120,22 @@ def enviar_correo_restauracion(email, token):
         smtp.sendmail(email_sender, email, em.as_string())
 
 # PRIMERA PANTALLA CUANDO VAS A RECUPERAR CONTRASEÑA
-@app.route('/olvidar-contrasena', methods=['GET', 'POST'])
 def olvidar_contrasena():
     if request.method == 'POST':
-        email = request.form['email']
-        usuario = Login.query.filter_by(correo=email).first()
+        correo = request.form['correo']
+        usuario = Login.query.filter_by(correo=correo).first()
         if usuario:
             token = generar_token2() 
             usuario.token = token
             db.session.commit()
-            enviar_correo_restauracion(email, token) 
+            enviar_correo_restauracion(correo, token) 
             flash("Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.", "success")
             return redirect(url_for('login'))
         else:
             flash("No se encontró ninguna cuenta asociada a ese correo electrónico.", "error")
-    return render_template('olvidar_contrasena.html')
+    return render_template('loginModule/olvidar_contrasena.html')
 
 # FUNCION PARA CONFIRMAR TU CONTRASEÑA
-@app.route('/restablecer-contrasena/<token>', methods=['GET', 'POST'])
 def restablecer_contrasena(token):
     usuario = Login.query.filter_by(token=token).first()
     if usuario:
@@ -153,7 +144,7 @@ def restablecer_contrasena(token):
             confirmar_contrasena = request.form['confirmar_contrasena']
             if nueva_contrasena == confirmar_contrasena:
                 hashed_password = bcrypt.generate_password_hash(nueva_contrasena).decode('utf-8')
-                usuario.passwor = hashed_password
+                usuario.contrasenia = hashed_password
                 usuario.token = None 
                 db.session.commit()
                 flash("Tu contraseña ha sido restablecida correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.", "success")
@@ -168,9 +159,11 @@ def restablecer_contrasena(token):
 
 # INICIO
 
-@app.route('/home')
-def home():
-    return "¡Bienvenido a la página de inicio!"
+@login_required
+def dashbord():
+    return render_template('dashbordModule/dashbordController.html') 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))

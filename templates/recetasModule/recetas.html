@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recetas de Galletas</title>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../static/css/header.css">
+
+<style>
+	body {
+	background-color: #f7f6e4;
+	}
+	.card {
+	background-color: #e2d5c1;
+	margin-bottom: 20px;
+	}
+	.card-title {
+	color: #5f3711;
+	}
+	.card-body {
+	color: #5f3711;
+	}
+	
+</style>
+</head>
+<body>
+	<header class="header">
+        <div class="navbar">
+          <ul>
+            <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('produccion') }}">Producción</a></li>
+            <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
+            <li><a href="{{ url_for('venta') }}">Ventas</a></li>
+          </ul>
+        </div>
+        <div class="cerrar">
+            <a href="{{ url_for('logout') }}">
+                <button class="btn btn-primary" style="background: black;color: white; border: none;">Cerrar sesion</button>
+            </a>
+        </div>
+  </header>
+	<div class="container">
+		<div class="container-titulo">
+			<h1 class="text-center my-4">Recetas de Galletas</h1>
+		</div>
+        <div class="row">
+            {% for receta in recetas %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ receta.nombre }}</h5>
+                        <p class="card-text">{{ receta.descripcion }}</p>
+                        <form action="{{ url_for('recetas_detalle', receta_id=receta.id) }}" method="post">
+							<button type="submit" class="btn btn-primary">Ver Ingredientes</button>
+						</form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

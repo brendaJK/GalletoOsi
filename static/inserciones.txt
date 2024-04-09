@@ -1,0 +1,68 @@
+INSERT LOGIN
+	contrasenia_encriptada = generate_password_hash("Administrador").decode('utf-8')
+    nuevo_registro_1 = Login(nombre="Cristian", correo="cristianleyvacr7@gmail.com", contrasenia=contrasenia_encriptada, rol="Administrador")
+    db.session.add(nuevo_registro_1)
+    nuevo_registro_2 = Login(nombre="Brenda", correo="es.bren.27.gtz.p@gmail.com", contrasenia=contrasenia_encriptada, rol="Empleado")
+    db.session.add(nuevo_registro_2)
+    nuevo_registro_3 = Login(nombre="Mario", correo="mariogt367@gmail.com", contrasenia=contrasenia_encriptada, rol="proveedor")
+    db.session.add(nuevo_registro_3)
+    db.session.commit()
+	
+INSERT RECETAS
+	INSERT INTO Recetas (iRecetaDetalle, nombre, descripcion, cantidadGalletas, pesoGalletas)
+VALUES
+(1, 'Galleta con chispas de chocolate', 'Deliciosa galleta con abundantes chispas de chocolate.', '10', '50'),
+(2, 'Galleta con chispas de café', 'Exquisita galleta con chispas de café para los amantes del aroma.', '10', '45'),
+(3, 'Galleta Oreo', 'La clásica galleta Oreo, crujiente por fuera y suave por dentro.', '10', '55'),
+(4, 'Galleta Saladitas', 'Una opción salada para variar el paladar.', '10', '40'),
+(5, 'Galleta con avena', 'Una galleta más saludable con el toque de avena.', '10', '60'),
+(6, 'Galleta con chispas de fresa', 'Deliciosa galleta con chispas de fresa para un toque frutal.', '10', '48'),
+(7, 'Galleta de la suerte', 'Una galleta especial con un mensaje sorpresa dentro.', '10', '52'),
+(8, 'Galleta con chispas coloridas', 'Una galleta colorida y divertida con chispas de varios colores.', '10', '55'),
+(9, 'Galleta Príncipe', 'La famosa galleta Príncipe, ideal para meriendas.', '10', '58'),
+(10, 'Galleta de jengibre', 'Una galleta navideña con aroma y sabor a jengibre.', '10', '65');
+
+INSERT INTO Recetas_detalle (iReceta, cantidad, ingrediente, material)
+VALUES
+(1, '100', 'chocolate', 'gramos'),
+(1, '200', 'harina', 'gramos'),
+(1, '150', 'azúcar', 'gramos'),
+(1, '100', 'mantequilla', 'gramos'),
+(2, '80', 'café', 'gramos'),
+(2, '200', 'harina', 'gramos'),
+(2, '150', 'azúcar', 'gramos'),
+(2, '100', 'mantequilla', 'gramos'),
+(3, '100', 'chocolate', 'gramos'),
+(3, '200', 'harina', 'gramos'),
+(3, '150', 'azúcar', 'gramos'),
+(3, '100', 'mantequilla', 'gramos'),
+(3, '800', 'leche', 'mililitros'),
+(4, '250', 'harina', 'gramos'),
+(4, '800', 'leche', 'mililitros'),
+(4, '100', 'mantequilla', 'gramos'),
+(5, '200', 'harina', 'gramos'),
+(5, '100', 'avena', 'gramos'),
+(5, '150', 'azúcar', 'gramos'),
+(5, '100', 'mantequilla', 'gramos'),
+(5, '800', 'leche', 'mililitros'),
+(6, '120', 'fresa', 'gramos'),
+(6, '200', 'harina', 'gramos'),
+(6, '150', 'azúcar', 'gramos'),
+(6, '100', 'mantequilla', 'gramos'),
+(6, '800', 'leche', 'mililitros'),
+(7, '250', 'harina', 'gramos'),
+(7, '150', 'azúcar', 'gramos'),
+(7, '100', 'mantequilla', 'gramos'),
+(7, '800', 'leche', 'mililitros'),
+(8, '200', 'harina', 'gramos'),
+(8, '150', 'azúcar', 'gramos'),
+(8, '100', 'mantequilla', 'gramos'),
+(8, '800', 'leche', 'mililitros'),
+(9, '200', 'harina', 'gramos'),
+(9, '150', 'azúcar', 'gramos'),
+(9, '100', 'mantequilla', 'gramos'),
+(9, '800', 'leche', 'mililitros'),
+(10, '200', 'harina', 'gramos'),
+(10, '150', 'azúcar', 'gramos'),
+(10, '100', 'mantequilla', 'gramos'),
+(10, '800', 'leche', 'mililitros');
