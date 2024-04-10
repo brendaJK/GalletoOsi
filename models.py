@@ -16,8 +16,8 @@ class Venta(db.Model):
     nombreCliente = db.Column(db.String(50))
     cantidad = db.Column(db.Integer)
 
-    db.Column(db.Integer, db.ForeignKey('inventario.id'), nullable=False)
-    producto = db.relationship('Inventario', backref='detalleVenta', lazy=True)
+    # db.Column(db.Integer, db.ForeignKey('inventario.id'), nullable=False)
+    # producto = db.relationship('Inventario', backref='detalleVenta', lazy=True)
     
     
 # Modelo de datos Caja xd
@@ -63,8 +63,8 @@ class MermaProduccion(db.Model):
 #     nombreMateriaP = db.Column(db.String(64))
 #     cantidad = db.Column(db.Double)
 
-class Login(db.Model, UserMixin):
-    __tablename__ = 'login'
+class Usuarios(db.Model, UserMixin):
+    __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     correo = db.Column(db.String(100), nullable=False)

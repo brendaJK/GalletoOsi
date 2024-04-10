@@ -4,12 +4,13 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_bcrypt import generate_password_hash
+from flask_bcrypt import check_password_hash
 import ssl
 import smtplib
 import random
 import string
 from email.message import EmailMessage
-from models import Login
+from models import Usuarios
 from models import db
 bcrypt = Bcrypt()
 
@@ -54,26 +55,24 @@ def enviar_correo(email, token):
 
 # FUNCION DEL LOGIN
 def vistaLogin():
-    contrasenia_encriptada= ""
-    
-    contrasenia_encriptada = generate_password_hash("Administrador").decode('utf-8')
-    nuevo_registro_2 = Login(nombre="Brenda", correo="es.bren.27.gtz.p@gmail.com", contrasenia=contrasenia_encriptada, rol="Empleado")
-    db.session.add(nuevo_registro_2)
-    db.session.commit()
     return render_template('loginModule/login.html') 
 
 def login():
     if request.method == 'POST':
         correo = request.form['correo']
         contrasenia = request.form['contrasenia']
-        usuario = Login.query.filter_by(correo=correo).first()
+        usuario = Usuarios.query.filter_by(correo=correo).first()
         if usuario:
-            token = generar_token()
-            usuario.token = token
-            login_user(usuario)
-            db.session.commit()            
-            enviar_correo(correo, token)            
-            return redirect(url_for('verificar_token'))
+            if check_password_hash(usuario.contrasenia, contrasenia):
+                token = generar_token()
+                usuario.token = token
+                login_user(usuario)
+                db.session.commit()
+                enviar_correo(correo, token)
+                return redirect(url_for('verificar_token'))
+            else:
+                flash("Correo electrónico o contraseña incorrectos", "error")
+                return render_template('loginModule/login.html')
         else:
             flash("Correo electrónico o contraseña incorrectos", "error")
             return render_template('loginModule/login.html')
@@ -85,7 +84,7 @@ def verificar_token():
     if request.method == 'POST':
         correo = request.form['correo']
         token = request.form['token']
-        usuario = Login.query.filter_by(correo=correo, token=token).first()
+        usuario = Usuarios.query.filter_by(correo=correo, token=token).first()
         if usuario:
             return redirect(url_for('dashbord'))
         else:
@@ -123,39 +122,47 @@ def enviar_correo_restauracion(email, token):
 def olvidar_contrasena():
     if request.method == 'POST':
         correo = request.form['correo']
-        usuario = Login.query.filter_by(correo=correo).first()
+        usuario = Usuarios.query.filter_by(correo=correo).first()
         if usuario:
             token = generar_token2() 
             usuario.token = token
             db.session.commit()
             enviar_correo_restauracion(correo, token) 
             flash("Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.", "success")
-            return redirect(url_for('login'))
+            return redirect(url_for('vistaLogin'))
         else:
             flash("No se encontró ninguna cuenta asociada a ese correo electrónico.", "error")
     return render_template('loginModule/olvidar_contrasena.html')
 
 # FUNCION PARA CONFIRMAR TU CONTRASEÑA
 def restablecer_contrasena(token):
-    usuario = Login.query.filter_by(token=token).first()
+    usuario = Usuarios.query.filter_by(token=token).first()
     if usuario:
         if request.method == 'POST':
             nueva_contrasena = request.form['nueva_contrasena']
             confirmar_contrasena = request.form['confirmar_contrasena']
-            if nueva_contrasena == confirmar_contrasena:
-                hashed_password = bcrypt.generate_password_hash(nueva_contrasena).decode('utf-8')
-                usuario.contrasenia = hashed_password
-                usuario.token = None 
-                db.session.commit()
-                flash("Tu contraseña ha sido restablecida correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.", "success")
-                return redirect(url_for('login'))
-            else:
+            if len(nueva_contrasena) < 8 or not any(c.isupper() for c in nueva_contrasena) or not any(c.islower() for c in nueva_contrasena):
+                flash("La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra minúscula y una letra mayúscula.", "error")
+                return render_template('loginModule/restablecer_contrasena.html', token=token)
+            if nueva_contrasena != confirmar_contrasena:
                 flash("Las contraseñas no coinciden. Por favor, inténtalo de nuevo.", "error")
-                return render_template('restablecer_contrasena.html', token=token)
-        return render_template('restablecer_contrasena.html', token=token)
+                return render_template('loginModule/restablecer_contrasena.html', token=token)            
+            if len(confirmar_contrasena) < 8 or not any(c.isupper() for c in confirmar_contrasena) or not any(c.islower() for c in confirmar_contrasena):
+                flash("La contraseña de confirmación debe tener al menos 8 caracteres, incluyendo al menos una letra minúscula y una letra mayúscula.", "error")
+                return render_template('loginModule/restablecer_contrasena.html', token=token)
+            
+            hashed_password = bcrypt.generate_password_hash(nueva_contrasena).decode('utf-8')
+            usuario.contrasenia = hashed_password
+            usuario.token = None 
+            db.session.commit()
+            flash("Tu contraseña ha sido restablecida correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.", "success")
+            return redirect(url_for('vistaLogin'))
+        
+        return render_template('loginModule/restablecer_contrasena.html', token=token)
     else:
         flash("El enlace de restablecimiento de contraseña no es válido o ha expirado.", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for('vistaLogin'))
+
 
 # INICIO
 
@@ -166,4 +173,4 @@ def dashbord():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('vistaLogin'))

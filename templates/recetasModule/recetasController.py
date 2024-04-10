@@ -1,8 +1,9 @@
 from flask import render_template, request, redirect, url_for
 from models import db, Recetas, RecetasDetalle
 from flask_login import login_required
-
-@login_required
+import base64
+import json
+detalles_receta_temporal = []
 
 def recetas():
     recetas = Recetas.query.all()
@@ -24,36 +25,37 @@ def recetas():
             'materiales': materiales
         })
     return render_template('recetasModule/recetas.html', recetas=data_recetas)
-@login_required
 
-def recetas_detalle(receta_id):
-    receta = Recetas.query.get_or_404(receta_id)
-    detalles = RecetasDetalle.query.filter_by(iReceta=receta_id).all()
-    return render_template('recetasModule/recetas_detalle.html', receta=receta, detalles=detalles, idReceta=receta_id)
-@login_required
 
-def eliminar_ingrediente(detalle_id):
-    detalle = RecetasDetalle.query.get(detalle_id)
-    if detalle:
-        db.session.delete(detalle)
-        db.session.commit()
-@login_required
-
-def agregar_ingrediente():
+def guardar_recetas():
     if request.method == 'POST':
-        try:    
-            detalle = RecetasDetalle(
-                iReceta = int(request.form['iReceta']),
-                cantidad = request.form['gramos'], 
-                ingrediente = request.form['ingrediente'],
-                material = request.form['material']
-            )
-            db.session.add(detalle)
-            db.session.commit()
-            return redirect(url_for('recetas_detalle', receta_id=request.form['iReceta']))
-        except Exception as e:
-            print(f"Error en la base de datos: {e}")
-            db.session.rollback()
-    return redirect(url_for('recetas_detalle', receta_id=request.form['iReceta']))
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        cantidadGalletas = request.form['cantidadGalletas']
+        pesoGalletas = request.form['pesoGalletas']
+        imagen = request.files['imagen']
+        imagen_base64 = base64.b64encode(imagen.read()).decode('utf-8')
+        
+        nueva_receta = {
+            'nombre': nombre,
+            'descripcion': descripcion,
+            'cantidadGalletas': cantidadGalletas,
+            'pesoGalletas': pesoGalletas,
+            'imagen': imagen_base64,
+            'detalles': []
+        }
+        
+        detalles_json = request.form['detalles']
+        detalles = json.loads(detalles_json)
+        
+        for detalle in detalles:
+            cantidad = detalle['cantidad']
+            ingrediente = detalle['ingrediente']
+            material = detalle['material']
+            nueva_receta['detalles'].append({'cantidad': cantidad, 'ingrediente': ingrediente, 'material': material})
+        
+        detalles_receta_temporal.append(nueva_receta)
+        
+    return render_template('loginModule/recetas.html', detalles_receta_temporal=detalles_receta_temporal)
 
     

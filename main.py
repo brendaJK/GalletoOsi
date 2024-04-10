@@ -5,39 +5,43 @@ from config import DevelopmentConfig
 from templates.ventasModule.ventacontroller import venta, guardar_venta 
 from templates.produccionModule.produccionController import produccion
 from templates.loginModule.loginController import login, verificar_token, olvidar_contrasena, restablecer_contrasena, dashbord, vistaLogin, logout
-from templates.recetasModule.recetasController import recetas, eliminar_ingrediente, recetas_detalle, agregar_ingrediente
+from templates.recetasModule.recetasController import recetas, guardar_recetas
 from templates.dashbordModule.dashbordController import dashbord
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from models import db, Login
+from models import db, Usuarios
 from flask_bcrypt import generate_password_hash
-
+from flask_cors import CORS
 from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
+CORS(app)
 csrf = CSRFProtect()
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
+
+current_user_id = None
 
 @login_manager.user_loader
-def load_user(user_id):
-    return Login.query.get(int(user_id))
+def load_user(id):
+    return Usuarios.query.get(int(id))
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html')
 
-app.route('/venta')(venta)
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for('vistaLogin'))
+
+app.route('/venta')(venta)  
 app.route('/guardar_venta', methods=['POST'])(guardar_venta)
 
 app.route('/produccion')(produccion)
 
 app.route('/recetas')(recetas)
-app.route('/eliminar_ingrediente/<int:detalle_id>', methods=['POST'])(eliminar_ingrediente)
-app.route('/recetas/<int:receta_id>', methods=['GET', 'POST'])(recetas_detalle)
-app.route('/agregar_ingrediente', methods=['POST'])(agregar_ingrediente)
+app.route('/guardar_recetas', methods=['POST'])(guardar_recetas)
 
 # app.route('/agregar_ingrediente/<int:receta_id>', methods=['POST'])(agregar_ingrediente)
 app.route('/')(vistaLogin)

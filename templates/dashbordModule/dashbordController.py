@@ -9,7 +9,6 @@ import smtplib
 import random
 import string
 from email.message import EmailMessage
-from models import db,Login
 
 bcrypt = Bcrypt()
 
