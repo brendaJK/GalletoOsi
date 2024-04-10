@@ -7,6 +7,7 @@ from templates.produccionModule.produccionController import produccion, guardarP
 from templates.loginModule.loginController import login, verificar_token, olvidar_contrasena, restablecer_contrasena, dashbord
 from templates.recetasModule.recetasController import recetas, eliminar_ingrediente, recetas_detalle, agregar_ingrediente
 from templates.loginModule.loginController import vistaLogin
+from templates.InventarioModule.inventarioController import Inventario
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from models import db, Login
@@ -60,6 +61,8 @@ app.route('/dashbord')(dashbord)
 
 app.route('/produccion')(produccion)
 app.route('/guardarProduccion', methods=['GET', 'POST'])(guardarProduccion)
+
+app.route('/inventario')(Inventario)
 
 
 if __name__ == '__main__':

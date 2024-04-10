@@ -46,6 +46,9 @@ class Produccion(db.Model):
     costoProduccion = db.Column(db.Double)
     fechaCaducidad = db.Column(db.Date)
     idUsuario = db.Column(db.Integer)
+    Estatus = db.Column(db.String(64))
+    nombreGalleta = db.Column(db.String(64))
+    cantidadProducida = db.Column(db.Integer)
 
 # Modelo de datos de producto
 class Producto(db.Model):
