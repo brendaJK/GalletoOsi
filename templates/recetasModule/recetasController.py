@@ -5,6 +5,7 @@ import base64
 import json
 detalles_receta_temporal = []
 
+@login_required
 def recetas():
     recetas = Recetas.query.all()
     data_recetas = []
@@ -26,7 +27,7 @@ def recetas():
         })
     return render_template('recetasModule/recetas.html', recetas=data_recetas)
 
-
+@login_required
 def guardar_recetas():
     if request.method == 'POST':
         nombre = request.form['nombre']

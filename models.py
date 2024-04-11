@@ -71,6 +71,8 @@ class Usuarios(db.Model, UserMixin):
     contrasenia = db.Column(db.String(64), nullable=False) 
     token = db.Column(db.String(220), nullable=True) 
     rol = db.Column(db.String(50), nullable=False)
+    intentos_fallidos = db.Column(db.Integer, default=0)
+
     def get_id(self):
         return str(self.id)
 
@@ -83,6 +85,13 @@ class Usuarios(db.Model, UserMixin):
     def is_anonymous(self):
         return False
     
+class LogsInicio(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    idUsuario = db.Column(db.Integer, nullable=False)
+    fecha = db.Column(db.Date, nullable=False)
+    hora = db.Column(db.Time, nullable=False)
+    estatus = db.Column(db.String(10), nullable=False)
+
 class Recetas(db.Model):
     __tablename__ = 'recetas'
     id = db.Column(db.Integer, primary_key=True)

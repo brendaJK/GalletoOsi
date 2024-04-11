@@ -7,18 +7,23 @@
   <link rel="stylesheet" href="/static/css/login.css">
   <link rel="stylesheet" href="/static/plugins/sweetalert/sweetalert.css">
   <link rel="stylesheet" href="/static/plugins/validationEngine/validationEngine.jquery.css">
+  <style>
+    .input{
+      position: relative;
+    }
+  </style>
 </head>
 <body>
   <div class="login-container">
     <img src="/static/images/logo2.png" alt="Galletas">
-    <form class="login-form" action="{{ url_for('restablecer_contrasena', token=token) }}" method="POST">
+    <form class="login-form" id="recuperar" action="{{ url_for('restablecer_contrasena', token=token) }}" method="POST">
       <div class="input">
           <label for="nueva_contrasena">Nueva Contraseña</label>
-          <input type="password" id="nueva_contrasena" name="nueva_contrasena" required>
+          <input type="password" id="password2" name="nueva_contrasena"  data-validation-engine="validate[required]">
       </div>
       <div class="input">
           <label for="confirmar_contrasena">Confirmar Contraseña</label>
-          <input type="password" id="confirmar_contrasena" name="confirmar_contrasena" required>
+          <input type="password" name="confirmar_contrasena"  data-validation-engine="validate[required,equals[password2]]">
       </div>
       <button type="submit">Restablecer Contraseña</button>
   </form>
@@ -40,7 +45,7 @@
   <script src="/static/plugins/validationEngine/jquery.validationEngine.js"></script>
   <script src="/static/plugins/validationEngine/jquery.validationEngine-es.js"></script>
   <script>
-    $('#formLogin').validationEngine({
+    $('#recuperar').validationEngine({
         scroll: false
     });
     function validarInput(input) {

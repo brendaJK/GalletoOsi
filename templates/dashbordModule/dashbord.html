@@ -11,10 +11,16 @@
     <header class="header">
         <div class="navbar">
           <ul>
-            <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('produccion') }}">Producción</a></li>
-            <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
-            <<li><a href="{{ url_for('venta') }}">Ventas</a></li>
+            {% if session['rol'] == 'Administrador' %}
+              <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
+              <li><a href="{{ url_for('produccion') }}">Producción</a></li>
+              <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
+              <li><a href="{{ url_for('venta') }}">Ventas</a></li>
+              {% endif %}
+              {% if session['rol'] == 'Empleado' %}
+              <li><a href="{{ url_for('venta') }}">Ventas</a></li>
+
+            {% endif %}
           </ul>
         </div>
         <div class="cerrar">
@@ -25,6 +31,7 @@
     </header>
   <div class="dashboard-container">
     <h1>Dashboard</h1>
+
     <div class="stats-container">
       <div class="stat-box">
         <h2>Galletas Vendidas</h2>
@@ -35,6 +42,9 @@
         <p>$1000</p>
       </div>
     </div>
+    <a href="{{ url_for('descargar_logs') }}">
+      Descargar Logs
+    </a>
   </div>
 </body>
 </html>

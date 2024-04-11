@@ -10,8 +10,12 @@ import smtplib
 import random
 import string
 from email.message import EmailMessage
-from models import Usuarios
+from models import Usuarios, LogsInicio
 from models import db
+from flask_login import current_user
+from datetime import datetime
+import asyncio
+
 bcrypt = Bcrypt()
 
 
@@ -55,23 +59,41 @@ def enviar_correo(email, token):
 
 # FUNCION DEL LOGIN
 def vistaLogin():
-    return render_template('loginModule/login.html') 
+    return render_template('loginModule/login.html')
 
+# Función para registrar la entrada en logs_inicio
+def registrar_entrada(idUsuario):
+    nueva_entrada = LogsInicio(idUsuario=idUsuario, fecha=datetime.now().date(), hora=datetime.now().time(), estatus='Entro')
+    db.session.add(nueva_entrada)
+    db.session.commit()
+
+# Función para registrar la salida en logs_inicio
+def registrar_salida(idUsuario):
+    nueva_salida = LogsInicio(idUsuario=idUsuario, fecha=datetime.now().date(), hora=datetime.now().time(), estatus='Salio')
+    db.session.add(nueva_salida)
+    db.session.commit()
+        
 def login():
     if request.method == 'POST':
         correo = request.form['correo']
         contrasenia = request.form['contrasenia']
         usuario = Usuarios.query.filter_by(correo=correo).first()
         if usuario:
+            if usuario.intentos_fallidos >= 3:
+                flash("Tu cuenta ha sido bloqueada debido a demasiados intentos fallidos. Por favor, ponte en contacto con el administrador.", "error")
+                return render_template('loginModule/login.html')
             if check_password_hash(usuario.contrasenia, contrasenia):
                 token = generar_token()
                 usuario.token = token
+                usuario.intentos_fallidos = 0
                 login_user(usuario)
                 db.session.commit()
                 enviar_correo(correo, token)
                 return redirect(url_for('verificar_token'))
             else:
-                flash("Correo electrónico o contraseña incorrectos", "error")
+                usuario.intentos_fallidos += 1 
+                db.session.commit()
+                flash("Correo electrónico o contraseña incorrectos. Intento fallido número {}.".format(usuario.intentos_fallidos), "error")
                 return render_template('loginModule/login.html')
         else:
             flash("Correo electrónico o contraseña incorrectos", "error")
@@ -86,7 +108,12 @@ def verificar_token():
         token = request.form['token']
         usuario = Usuarios.query.filter_by(correo=correo, token=token).first()
         if usuario:
-            return redirect(url_for('dashbord'))
+            session['rol'] = usuario.rol
+            registrar_entrada(current_user.id)
+            if session['rol'] == 'Administrador':
+                return redirect(url_for('dashbord'))
+            if session['rol'] == 'Empleado':
+                return redirect(url_for('venta'))
         else:
             flash("Correo electrónico o token incorrectos", "error")
             return render_template('loginModule/verificar_token.html')
@@ -139,19 +166,22 @@ def restablecer_contrasena(token):
     usuario = Usuarios.query.filter_by(token=token).first()
     if usuario:
         if request.method == 'POST':
-            nueva_contrasena = request.form['nueva_contrasena']
             confirmar_contrasena = request.form['confirmar_contrasena']
-            if len(nueva_contrasena) < 8 or not any(c.isupper() for c in nueva_contrasena) or not any(c.islower() for c in nueva_contrasena):
-                flash("La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra minúscula y una letra mayúscula.", "error")
+            with open('static/validaciones.txt', 'r') as file:
+                contraseñas_inseguras = file.read().splitlines()
+            if confirmar_contrasena in contraseñas_inseguras:
+                flash("La contraseña es demasiado insegura. Por favor, elija una contraseña más segura.", "error")
                 return render_template('loginModule/restablecer_contrasena.html', token=token)
-            if nueva_contrasena != confirmar_contrasena:
-                flash("Las contraseñas no coinciden. Por favor, inténtalo de nuevo.", "error")
+            if len(confirmar_contrasena) < 8 or not any(c.isupper() for c in confirmar_contrasena) \
+                or not any(c.islower() for c in confirmar_contrasena) or not any(c.isdigit() for c in confirmar_contrasena):
+                flash("La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula, una letra minúscula y un número.", "error")
                 return render_template('loginModule/restablecer_contrasena.html', token=token)            
-            if len(confirmar_contrasena) < 8 or not any(c.isupper() for c in confirmar_contrasena) or not any(c.islower() for c in confirmar_contrasena):
-                flash("La contraseña de confirmación debe tener al menos 8 caracteres, incluyendo al menos una letra minúscula y una letra mayúscula.", "error")
+            if len(confirmar_contrasena) < 8 or not any(c.isupper() for c in confirmar_contrasena) \
+                or not any(c.islower() for c in confirmar_contrasena) or not any(c.isdigit() for c in confirmar_contrasena):
+                flash("La contraseña de confirmación debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula, una letra minúscula y un número.", "error")
                 return render_template('loginModule/restablecer_contrasena.html', token=token)
             
-            hashed_password = bcrypt.generate_password_hash(nueva_contrasena).decode('utf-8')
+            hashed_password = bcrypt.generate_password_hash(confirmar_contrasena).decode('utf-8')
             usuario.contrasenia = hashed_password
             usuario.token = None 
             db.session.commit()
@@ -172,5 +202,6 @@ def dashbord():
 
 @login_required
 def logout():
+    registrar_salida(current_user.id)
     logout_user()
     return redirect(url_for('vistaLogin'))
