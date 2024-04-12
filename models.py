@@ -3,21 +3,27 @@ import datetime
 from datetime import datetime
 from sqlalchemy import ForeignKey
 from flask_login import UserMixin
+
+from sqlalchemy import ForeignKey
+
 from sqlalchemy.orm import relationship
 
 
 db = SQLAlchemy()
 
 # Modelo de datos Venta xd
+
 class Venta(db.Model):
-    _tablename_ = 'venta'
+    __tablename__ = 'venta'
     idVenta = db.Column(db.Integer, primary_key=True)
     fecha = db.Column(db.String(50))
     total = db.Column(db.Float)
     cantidadVendida = db.Column(db.Integer)
-    idDetalleVenta = db.Column(db.Integer)
-    idCaja = db.Column(db.Integer)
-    idUsuario = db.Column(db.Integer)
+    idCaja = db.Column(db.Integer, db.ForeignKey('caja.idCaja'))
+    idUsuario = db.Column(db.Integer, db.ForeignKey('usuarios.idUsuario'))
+    detallesVenta = relationship('DetalleVenta', backref='venta')
+    
+
     
 class DetalleVenta(db.Model):
     __tablename__ = 'detalleVenta'
@@ -26,18 +32,13 @@ class DetalleVenta(db.Model):
     tipoVenta = db.Column(db.String(50))
     cantidad = db.Column(db.Integer)
     nombreGalleta = db.Column(db.String(50))
-    idVenta = db.Column(db.Integer)
-# Modelo de datos Caja xd
+    idVenta = db.Column(db.Integer, db.ForeignKey('venta.idVenta'))
+
+    
 class Caja(db.Model):
     __tablename__ = 'caja'
     idCaja = db.Column(db.Integer, primary_key=True)
     dineroCaja = db.Column(db.Float)
-
-class PagoProveedor(db.Model):
-    __tablename__ = 'pagoProveedor'
-    idPagoProveedor = db.Column(db.Integer, primary_key=True)
-    fecha = db.Column(db.String(50))
-    Total = db.Column(db.Float)
 
 # Modelo de datos Produccion
 class Produccion(db.Model):
@@ -68,6 +69,51 @@ class MermaProduccion(db.Model):
     Descripcion = db.Column(db.String(150))
     Estatus = db.Column(db.String(25))
 
+# Modelo de datos de Materia Prima (al que le toco esta tabla no se que mas vaya a agregar)
+# class Materia_Prima(db.Model):
+#     __tablename__ = 'materia_prima'
+#     idMateriaPrima = db.Column(db.Integer, primary_key = True)
+#     idProveedor = db.Column(db.Integer)
+#     nombreMateriaP = db.Column(db.String(64))
+#     cantidad = db.Column(db.Double)
+
+class Login(db.Model, UserMixin):
+    __tablename__ = 'login'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    correo = db.Column(db.String(100), nullable=False)
+    contrasenia = db.Column(db.String(64), nullable=False) 
+    token = db.Column(db.String(220), nullable=True) 
+    rol = db.Column(db.String(50), nullable=False)
+    def get_id(self):
+        return str(self.id)
+
+    def is_active(self):
+        return True
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+    
+class Recetas(db.Model):
+    __tablename__ = 'recetas'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(220), nullable=False)
+    descripcion = db.Column(db.String(220), nullable=False)
+    cantidadGalletas = db.Column(db.String(220), nullable=True)
+    pesoGalletas = db.Column(db.String(220), nullable=False)
+    imagen = db.Column(db.String(225), nullable=True)
+    detalles = db.relationship('RecetasDetalle', backref='receta', lazy=True)
+
+class RecetasDetalle(db.Model):
+    __tablename__ = 'recetas_detalle'
+    id = db.Column(db.Integer, primary_key=True)
+    iReceta = db.Column(db.Integer, db.ForeignKey('recetas.id'), nullable=False)
+    cantidad = db.Column(db.String(220), nullable=False)
+    ingrediente = db.Column(db.String(220), nullable=True)
+    material = db.Column(db.String(220), nullable=False)
 
 class Proveedor(db.Model): #creamos el mapeado para poder crear la tabla
     __tablename__='proveedor' # nos permite agregar un  nombre especifico
@@ -113,15 +159,17 @@ class InventarioMateriaPrima(db.Model): #creamos el mapeado para poder crear la 
     cantidad=db.Column(db.String(100))
     estatus=db.Column(db.String(10))
     fechaCaducidad=db.Column(db.DateTime)    
-
-class Login(db.Model, UserMixin):
-    __tablename__ = 'login'
+    
+class Usuarios(db.Model, UserMixin):
+    __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     correo = db.Column(db.String(100), nullable=False)
     contrasenia = db.Column(db.String(64), nullable=False) 
     token = db.Column(db.String(220), nullable=True) 
     rol = db.Column(db.String(50), nullable=False)
+    intentos_fallidos = db.Column(db.Integer, default=0)
+
     def get_id(self):
         return str(self.id)
 
@@ -133,21 +181,18 @@ class Login(db.Model, UserMixin):
 
     def is_anonymous(self):
         return False
-
-class Recetas(db.Model):
-    __tablename__ = 'recetas'
+    
+class LogsInicio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(220), nullable=False)
-    descripcion = db.Column(db.String(220), nullable=False)
-    cantidadGalletas = db.Column(db.String(220), nullable=True)
-    pesoGalletas = db.Column(db.String(220), nullable=False)
-    imagen = db.Column(db.String(225), nullable=True)
-    detalles = db.relationship('RecetasDetalle', backref='receta', lazy=True)
+    idUsuario = db.Column(db.Integer, nullable=False)
+    fecha = db.Column(db.Date, nullable=False)
+    hora = db.Column(db.Time, nullable=False)
+    estatus = db.Column(db.String(10), nullable=False)
+    
+class Producto(db.Model): #creamos el mapeado para poder crear la tabla
+    __tablename__='productos' # nos permite agregar un  nombre especifico
+    idProducto=db.Column(db.Integer,primary_key=True) #necesario el id para fungir como clave primaria y permita generar el campo siempre lo requiere 
+    nombre=db.Column(db.String(300)) # con db.Column asignando el tipo de dato
+    estatus=db.Column(db.String(8))
+    
 
-class RecetasDetalle(db.Model):
-    __tablename__ = 'recetas_detalle'
-    id = db.Column(db.Integer, primary_key=True)
-    iReceta = db.Column(db.Integer, db.ForeignKey('recetas.id'), nullable=False)
-    cantidad = db.Column(db.String(220), nullable=False)
-    ingrediente = db.Column(db.String(220), nullable=True)
-    material = db.Column(db.String(220), nullable=False)

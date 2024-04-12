@@ -32,13 +32,13 @@
 
     <div class="col-xs-7 col-sm-7 m-5">
         <h4>Lista de proveedores </h4>
-        <table class="table m-3" id="final">
-            <thead class="thead-light">
-                <tr class="table-active">
-                    <th>Razon Social</th>
-                    <th>Nombre Proveedor</th>
-                    <th>Fecha agregado</th>
-                    <th>Eliminar</th>
+        <table class="table" id="final">
+            <thead>
+                <tr>
+                    <th scope="col">Razon Social</th>
+                    <th scope="col">Nombre Proveedor</th>
+                    <th scope="col">Fecha agregado</th>
+                    <th scope="col">Eliminar</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,7 +50,7 @@
                     <td>
                         <form action="/eliminar_proveedor/{{ prove.idProveedor }}" method="POST">
                             
-                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                            <button type="submit" class="btn" style="background-color: #c24a3a; color : #f7f6e4">Eliminar</button>
                         </form>
                     </td>
                 </tr>

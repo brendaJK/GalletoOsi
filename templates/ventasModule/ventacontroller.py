@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, current_app, json
 from models import db
 from sqlalchemy import text, update 
 import forms
-from models import Venta, Caja, DetalleVenta, Produccion, CompraMateriaPrima, Proveedor, MateriaPrimas
+from models import Venta, Caja, DetalleVenta, Produccion, CompraMateriaPrima, Proveedor, MateriaPrimas, InventarioMateriaPrima
 from datetime import datetime
 
 
@@ -22,7 +22,7 @@ def venta():
     
     for producto in produccion:
         costo_por_unidad = producto.costo_por_unidad
-        precio_venta_por_unidad = costo_por_unidad * (1 + margen_beneficio)
+        precio_venta_por_unidad = 10 #costo_por_unidad * (1 + margen_beneficio)
         producto_con_precio_venta = {
             "idReceta": producto.idReceta,
             "nombreProducto": producto.nombreProducto,
@@ -144,27 +144,32 @@ def proveedorpago():
         CompraMateriaPrima.estatus
     ).join(Proveedor, CompraMateriaPrima.idProveedor == Proveedor.idProveedor
     ).join(MateriaPrimas, CompraMateriaPrima.idMP == MateriaPrimas.idMP
-    ).filter(CompraMateriaPrima.estatus == 'Pendiente'
+    ).filter(CompraMateriaPrima.estatus == 'Pedido'
     ).all()
 
         return render_template('ventasModule/pagoProveedor.html', compras=compras)
 
+
 def pagoMateriaPrima():
-        data = request.get_json()
-        idCMP = data['idCMP']
-        totalPagar = float(data['totalPagar'])
-        nombreProducto = data['nombreProducto']
+    data = request.get_json()
+    idCMP = data['idCMP']
+    totalPagar = float(data['totalPagar'])
+    fecha_caducidad = datetime.strptime(data['fechaPago'], '%Y-%m-%d')  # Convertir la fecha de cadena a objeto datetime
 
-        compra = CompraMateriaPrima.query.get(idCMP)
-        compra.estatus = 'Pagado'
-        db.session.commit()
+    inventario = InventarioMateriaPrima.query.filter_by(idCMP=idCMP).first()
+    inventario.fechaCaducidad = fecha_caducidad
+    db.session.commit()
 
-    
-        caja = Caja.query.first() 
-        caja.dineroCaja -= totalPagar
-        db.session.commit()
+    compra = CompraMateriaPrima.query.get(idCMP)
+    compra.estatus = 'Pagado'
+    db.session.commit()
 
-        return jsonify({'message': 'Pago realizado correctamente'}), 200
+    caja = Caja.query.first() 
+    caja.dineroCaja -= totalPagar
+    db.session.commit()
+
+    return jsonify({'message': 'Pago realizado correctamente'}), 200
+
 
 def agregarDinero():
     data = request.get_json()
@@ -185,3 +190,4 @@ def agregarDinero():
         return jsonify({'message': f'Se han agregado ${monto} a la caja correctamente'}), 200
     else:
         return jsonify({'error': 'No se encontró la caja'}), 404
+

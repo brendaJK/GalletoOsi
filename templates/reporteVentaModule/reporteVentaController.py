@@ -2,6 +2,8 @@ from flask import Flask,render_template, request, jsonify
 import re
 from flask import flash,redirect
 from flask_wtf.csrf import CSRFProtect
+from flask_login import login_required
+
 from config import DevelopmentConfig
 from flask import g
 from datetime import datetime,timedelta

@@ -2,6 +2,8 @@ from flask import Flask,render_template, request
 import re
 from flask import flash,redirect
 from flask_wtf.csrf import CSRFProtect
+from flask_login import login_required
+
 from config import DevelopmentConfig
 from flask import g
 from datetime import datetime,timedelta
@@ -25,11 +27,12 @@ from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 caracteresEspeciales = re.compile(r'[^a-zA-Z0-9\s]')
-
+@login_required
 def sanitize_input(input_str):
     # Eliminar caracteres especiales usando la expresión regular
     return caracteresEspeciales.sub('', input_str)
 
+@login_required
 def proveedores():
     proveedor_form = forms.ProveForm(request.form)
     proveedores = Proveedor.query.filter_by(estatus='activo').all()
@@ -50,6 +53,7 @@ def proveedores():
                 db.session.rollback()
     return render_template('proveedorModule/proveedor.html', form=proveedor_form,proveedor=proveedores)
 
+@login_required
 
 def eliminar_proveedor(proveedor_id):
     proveedor = Proveedor.query.get(proveedor_id)

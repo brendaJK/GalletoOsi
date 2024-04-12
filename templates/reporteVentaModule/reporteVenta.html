@@ -30,15 +30,11 @@
                 <option value="Domingo">Domingo</option>
             </select>
         </div>
-    </div>
-    
-    <!-- Cambiamos el tipo de botón a "submit" para que envíe el formulario -->
-
-    <div class="form-group col-xs-12 col-sm-12 floating-label-form-group controls m-4">
-        <button type="submit" class="btn btn-success">
-            Filtar</button>
-    </div>
-    
+        <div class="form-group col-xs-12 col-sm-4 floating-label-form-group controls m-4">
+            <button type="submit" class="btn" style="background-color: #e2d5c1; color: #5f3711;">
+                Filtar</button>
+        </div>
+    </div>    
 </form>
 
 <!-- Tabla de ejemplo -->
@@ -60,9 +56,13 @@
         {% endfor %}
     </tbody>
 </table>
-
+<center>
 <!-- Botón para generar PDF -->
-<button id="generarPDF" class="btn btn-primary">Generar PDF</button>
+<div class="form-group col-xs-12 col-sm-4 floating-label-form-group controls m-4" style="justify-items: center;">
+    <button id="generarPDF" class="btn" style="justify-content: center; background-color: #d4c098; color: #5f3711;">Generar PDF</button>
+</div>
+</center>
+
 
 <!-- Script para filtrar y generar PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.1/html2pdf.bundle.min.js"></script>

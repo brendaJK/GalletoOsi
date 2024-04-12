@@ -1,4 +1,5 @@
 from flask import Flask,render_template, request
+from flask_login import login_required
 import re
 from flask import flash,redirect
 from flask_wtf.csrf import CSRFProtect
@@ -23,11 +24,11 @@ from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 caracteresEspeciales = re.compile(r'[^a-zA-Z0-9\s]')
-
+@login_required
 def sanitize_input(input_str):
     # Eliminar caracteres especiales usando la expresión regular
     return caracteresEspeciales.sub('', input_str)
-
+@login_required
 def maPrimas():
     materia_form = forms.MateForm(request.form)
     materias = MateriaPrimas.query.filter_by(estatus='Disponible').all()
@@ -44,7 +45,7 @@ def maPrimas():
             print(f"Error en la base de datos: {e}")
             db.session.rollback()
     return render_template('materiaPrimaModule/maPrimas.html', form=materia_form, materia=materias)
-
+@login_required
 def eliminar_materia(materia_id):
     materia = MateriaPrimas.query.get(materia_id)
     if materia:
@@ -62,7 +63,7 @@ def eliminar_materia(materia_id):
 
     return redirect('/maPrimas')
 
-
+@login_required
 def comprarMateriasPrimas():
     
     compraMateria_form = forms.CompraMateForm(request.form)
@@ -81,7 +82,7 @@ def comprarMateriasPrimas():
     opciones_proveedor = [(proveedor.idProveedor, proveedor.nombreP) for proveedor in proveedores]
     compraMateria_form.proveedor.choices = opciones_proveedor
     
-    materiaprima = MateriaPrimas.query.all()  
+    materiaprima = MateriaPrimas.query.filter_by(estatus='Disponible').all()
     opciones_materia = [(materia.idMP, materia.nombreMa) for materia in materiaprima]
     compraMateria_form.materia.choices = opciones_materia
 
@@ -89,7 +90,6 @@ def comprarMateriasPrimas():
         try:
             cantidad = 0
             fecha_compra = datetime.now()  # Obtener la fecha actual
-            fecha_caducidad = compraMateria_form.fechaCaducidad.data
             cantidad =  int(compraMateria_form.cantidad.data)
             presentacion = compraMateria_form.presentacion.data
             print(type(compraMateria_form.cantidad.data))
@@ -142,16 +142,20 @@ def comprarMateriasPrimas():
                 cantidadInventario = 360 * cantidad
                 print("Cantidad de inventario para Galones:", cantidadInventario)
                 
-            print(cantidadInventario)
-            cantidad_es = f"{cantidad} {presentacion}"
-            print(type(cantidadInventario))
-            compra = CompraMateriaPrima(idMP=compraMateria_form.materia.data, idProveedor=compraMateria_form.proveedor.data, 
-                                        costo=compraMateria_form.costo.data, cantidad=cantidad_es, estatus='Pedido', idUsuario = 2)
-            db.session.add(compra)      
-            
+            cantidadCompra = f"{cantidad} {presentacion}"
+
             # Llamar al procedimiento almacenado para insertar la compra y el inventario
-            
-            
+            db.session.execute(
+                text("CALL InsertarCompraMateriaPrima(:idProveedor, :idMP, :costo, :cantidad, :cantidad_es, :fechaCompra)"),
+                {
+                    'idProveedor': compraMateria_form.proveedor.data,
+                    'costo': compraMateria_form.costo.data,
+                    'idMP': compraMateria_form.materia.data,
+                    'cantidad': cantidadCompra,
+                    'cantidad_es':cantidadInventario,
+                    'fechaCompra': fecha_compra
+                }
+            )
             db.session.commit()
 
             flash('La compra ha sido agregada exitosamente.', 'success')
@@ -174,6 +178,7 @@ def comprarMateriasPrimas():
 
 
 
+@login_required
 def inventarioMateriasPrimas():
     iventarioMateria_form = forms.InvenMateForm(request.form)
     inventario = db.session.query(
@@ -190,13 +195,14 @@ def inventarioMateriasPrimas():
         MateriaPrimas, CompraMateriaPrima.idMP == MateriaPrimas.idMP
     ).join(
         Proveedor, CompraMateriaPrima.idProveedor == Proveedor.idProveedor
-    ).all()
+    ).filter(
+        InventarioMateriaPrima.estatus == 'Disponible').all()
     
     
     return render_template('materiaPrimaModule/inventarioMateriasPrimas.html', form=iventarioMateria_form, inventario=inventario)
 
 
-
+@login_required
 def eliminar_inventario(inventario_id):
     # Obtener el registro de inventario correspondiente al inventario_id
     inventario = InventarioMateriaPrima.query.get(inventario_id)
@@ -251,3 +257,8 @@ def eliminar_inventario(inventario_id):
         flash('Inventario no encontrado.', 'error')
 
     return redirect("/inventarioMateriasPrimas")
+
+
+
+
+

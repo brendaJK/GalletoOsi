@@ -1,5 +1,5 @@
 
-from wtforms import Form,StringField, EmailField, SelectField, IntegerField, validators,DateField,FloatField,TextAreaField
+from wtforms import Form,StringField, EmailField, SelectField, IntegerField, validators,DateField,FloatField,TextAreaField,PasswordField
 
 #formulario para venta xd   
 class VentasForm(Form):
@@ -67,3 +67,33 @@ class ReporteVentaForm(Form):
     tipo= SelectField('tipo',[
         validators.DataRequired(message='El campo es requerido')
     ])
+    
+class UsuarioNuevoForm(Form):
+    id=IntegerField('id')
+    nombre= StringField('Nombre',[
+        validators.DataRequired(message='El campo es requerido'),
+        validators.length(min=4,max=300, message='Ingrese un nombre valido')
+    ])
+    primerApellido= StringField('Primer apellido',[
+        validators.DataRequired(message='El campo es requerido'),
+        validators.length(min=2,max=100, message='Ingrese un apellido valido')
+    ])
+    segundoApellido= StringField('Segundo apellido')
+    correo= EmailField('Correo',[
+        validators.DataRequired(message='El campo es requerido'),
+        validators.length(min=2,max=100, message='Ingrese un correo valido')
+    ])
+    contrasenia= PasswordField('Contraseña',[
+        validators.DataRequired(message='El campo es requerido')
+    ])
+    rol= SelectField('Rol',[
+        validators.DataRequired(message='El campo es requerido')
+    ])
+    
+class ProductoForm(Form):
+    id=IntegerField('id')
+    
+    nombre= StringField('Nombre del producto',[
+        validators.DataRequired(message='El campo es requerido'),
+        validators.length(min=4,max=300, message='Ingrese una nombre valido')
+    ])    

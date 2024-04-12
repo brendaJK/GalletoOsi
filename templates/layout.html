@@ -19,7 +19,7 @@
             padding: 0;
         }
         header {
-            background-color: #f6f6e2;
+            background-color: #d4c098;
             padding: 20px;
         }
         nav {
@@ -47,24 +47,56 @@
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <img
-                      src="logoGalleto2-removebg-preview.png"
-                      height="30"
-                      alt="MDB Logo"
-                      loading="lazy"
-                      style="margin-top: 2px;"
-                      
-                    />
-            <ul>
-                <li><a href="/venta">Venta</a></li>
-                <li><a href="#">Produccion</a></li>
-                <li><a href="/maPrimas">Materia prima</a></li>
-                <li><a href="#">Contacto</a></li>
-            </ul>
-        </nav>
-    </header>
+    <header style="display: flex; justify-content: center;">
+    {%if session['rol'] == 'Administrador'%}
+    <nav>
+        <img src="/static/images/logo.png" height="65" alt="Crispy Logo" loading="lazy" style="margin-top: 2px;">
+        <ul class="nav nav-underline">
+            <li class="nav-item"><a href="/dashbord"><i class="bi bi-speedometer2"></i>Dashbord</a></li>
+            <li class="nav-item"><a href="/venta"><i class="bi bi-cash"></i> Venta</a></li>
+            <li class="nav-item"><a href="#"><i class="bi bi-tools"></i> Producción</a></li>
+            <li class="nav-item dropdown">
+                <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Materias primas</a>
+                <ul class="dropdown-menu">
+                  <li class="nav-item"><a class="dropdown-item" href="/maPrimas">Lista materias primas</a></li>
+                  <li class="nav-item"><a class="dropdown-item" href="/comprarMateriasPrimas">Comprar materias primas</a></li>
+                  <li class="nav-item"><a class="dropdown-item" href="/inventarioMateriasPrimas">Inventario de materias primas</a></li>
+                </ul>
+            </li>
+            <li class="nav-item"><a href="/reporte_venta"><i class="bi bi-file-earmark-bar-graph"></i> Reporte de venta</a></li>
+            <li class="nav-item"><a href="/proveedores"><i class="bi bi-people"></i> Proveedores</a></li>
+            <li class="nav-item"><a href="/logout"><i class="bi bi-door-open"></i> Cerrar sesión</a></li>
+        </ul>
+    </nav>
+    {%endif%}
+
+    {%if session['rol'] == 'Venta'%}
+    <nav>
+        <img src="/static/images/logo.png" height="65" alt="Crispy Logo" loading="lazy" style="margin-top: 2px;">
+        <ul class="nav nav-underline">
+            <li class="nav-item"><a href="/dashbord"><i class="bi bi-speedometer2"></i>Dashbord</a></li>
+            <li class="nav-item"><a href="/venta"><i class="bi bi-cash"></i> Venta</a></li>
+            <li class="nav-item"><a href="/reporte_venta"><i class="bi bi-file-earmark-bar-graph"></i> Reporte de venta</a></li>
+            <li class="nav-item"><a href="/logout"><i class="bi bi-door-open"></i> Cerrar sesión</a></li>
+        </ul>
+    </nav>
+    {%endif%}
+
+    {%if session['rol'] == 'Produccion'%}
+    <nav>
+        <img src="/static/images/logo.png" height="65" alt="Crispy Logo" loading="lazy" style="margin-top: 2px;">
+        <ul class="nav nav-underline">
+            <li class="nav-item"><a href="/dashbord"><i class="bi bi-speedometer2"></i>Dashbord</a></li>
+            <li class="nav-item"><a href="#"><i class="bi bi-tools"></i> Producción</a></li>
+            <li class="nav-item"><a href="/logout"><i class="bi bi-door-open"></i> Cerrar sesión</a></li>
+        </ul>
+    </nav>
+    {%endif%}
+
+    
+    
+</header>
+
     <div class="container">
         {%with messages=get_flashed_messages()%}
         {%if messages%}

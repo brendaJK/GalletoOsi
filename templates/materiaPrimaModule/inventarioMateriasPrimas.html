@@ -9,16 +9,15 @@
     </div>
     <div class="col-xs-7 col-sm-10 m-5">
         <h4>Inventario de materias primas</h4>
-        <table class="table m-3" id="final">
-            <thead class="thead-light">
-                <tr class="table-active">
-                    <th>Materia prima</th>
-                    <th>Cantidad</th>
-                    <th>Proveedor</th>
-                    <th>Fecha caducidad</th>
-                    <th>Fecha compra</th>
-                    
-                    <th>Eliminar</th>
+        <table class="table" id="final">
+            <thead>
+                <tr>
+                    <th scope="col">Materia prima</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Proveedor</th>
+                    <th scope="col">Fecha caducidad</th>
+                    <th scope="col">Fecha compra</th>
+                    <th scope="col">Eliminar</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,7 +31,7 @@
                     
 
                     <td>
-                        <button type="button" class="btn btn-danger" onclick="mostrarVentana('{{ inven.idMPI }}')">Eliminar</button>
+                        <button type="button" class="btn" style="background-color: #c24a3a; color : #f7f6e4" onclick="mostrarVentana('{{ inven.idMPI }}')">Eliminar</button>
 
                     </td>
                 </tr>

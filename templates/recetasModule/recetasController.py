@@ -1,5 +1,8 @@
 from flask import render_template, request, redirect, url_for
 from models import db, Recetas, RecetasDetalle
+from flask_login import login_required
+
+@login_required
 
 def recetas():
     recetas = Recetas.query.all()
@@ -21,17 +24,20 @@ def recetas():
             'materiales': materiales
         })
     return render_template('recetasModule/recetas.html', recetas=data_recetas)
+@login_required
 
 def recetas_detalle(receta_id):
     receta = Recetas.query.get_or_404(receta_id)
     detalles = RecetasDetalle.query.filter_by(iReceta=receta_id).all()
     return render_template('recetasModule/recetas_detalle.html', receta=receta, detalles=detalles, idReceta=receta_id)
+@login_required
 
 def eliminar_ingrediente(detalle_id):
     detalle = RecetasDetalle.query.get(detalle_id)
     if detalle:
         db.session.delete(detalle)
         db.session.commit()
+@login_required
 
 def agregar_ingrediente():
     if request.method == 'POST':

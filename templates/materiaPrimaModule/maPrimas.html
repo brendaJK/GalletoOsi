@@ -1,18 +1,30 @@
 {% extends "layout.html" %}
 {% block container %}
-
+<style>
+    form.contactForm {
+        max-width: auto;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f6f6e2;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+</style>
 <center>
 <div class="container" >
     <div class="row">
         <center>
+        
+        <form name="sent" action="/maPrimas" id="contactForm" method="POST">
             <div style="margin-top: 20px;">
                 <h4> Materias primas </h4>
             </div>
-        
-        <form name="sent" action="/maPrimas" id="contactForm" method="POST">
-
-            <div class="form-group col-xs-12 col-sm-12 floating-label-form-group controls m-4">
-                <a href="comprarMateriasPrimas" class="btn btn-success">
+            
+            <div class="form-group col-xs-12 col-sm-12 floating-label-form-group controls m-4" style="display: flex; justify-content: flex-end; padding-right:30px;">
+                <a href="comprarMateriasPrimas" class="btn" style="background-color: #e2d5c1; color: #5f3711;">
                     <i class="bi bi-plus"></i>
                     Comprar materia prima
                 </a>
@@ -35,7 +47,7 @@
                 </div>
                 
                 <div class="form-group col-xs-12 col-sm-12 floating-label-form-group controls m-4">
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success" style="color:#f7f6e4;">
                         <i class="bi bi-plus"></i>
                         Agregar materia prima</button>
                 </div>
@@ -48,13 +60,12 @@
     <div class="col-xs-7 col-sm-8 m-5">
         <h4>Lista de materias primas </h4>
             
-        <table class="table m-3" id="final">
-            <thead class="thead-light">
-                <tr class="table-active">
-                    
-                    <th>Materia prima</th>
-                    <th>Tipo materia</th>
-                    <th>Eliminar</th>
+        <table class="table" id="final">
+            <thead>
+                <tr> 
+                    <th scope="col">Materia prima</th>
+                    <th scope="col">Tipo materia</th>
+                    <th scope="col">Eliminar</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,7 +77,7 @@
                         <td>
                             <form action="/eliminar_materia/{{ mater.idMP }}" method="POST">
                                 
-                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                                <button type="submit" class="btn" style="background-color: #c24a3a; color : #f7f6e4">Eliminar</button>
                             </form>
                         </td>
                 </tr>
@@ -74,10 +85,7 @@
             </tbody>
         </table>
             </div>
-
-
     </div>
-
 </div>
 </div>
 </center>

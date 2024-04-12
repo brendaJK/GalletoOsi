@@ -1,40 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="../../static/css/dashboard.css">
-  <link rel="stylesheet" href="../../static/css/header.css">
-</head>
-<body>
-    <header class="header">
-        <div class="navbar">
-          <ul>
-            <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('produccion') }}">Producción</a></li>
-            <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
-            <li><a href="{{ url_for('venta') }}">Ventas</a></li>
-          </ul>
-        </div>
-        <div class="cerrar">
-            <a href="{{ url_for('vistaLogin') }}">
-                <button class="btn btn-primary" style="background: black;color: white; border: none;">Cerrar sesion</button>
-            </a>
-        </div>
-    </header>
-  <div class="dashboard-container">
-    <h1>Dashboard</h1>
-    <div class="stats-container">
-      <div class="stat-box">
-        <h2>Galletas Vendidas</h2>
-        <p>500</p>
-      </div>
-      <div class="stat-box">
-        <h2>Ganancias del Día</h2>
-        <p>$1000</p>
-      </div>
+{% extends "layout.html" %}
+{% block container %}
+<link rel="stylesheet" href="../../static/css/dashboard.css">
+<link rel="stylesheet" href="../../static/css/header.css">
+<center>
+<div class="container" >
+    <div class="row">
+        <center>
+          <div class="dashboard-container">
+            <h1>Dashboard</h1>
+        
+            <div class="stats-container">
+              <div class="stat-box">
+                <div class="card" style="width: 14rem;">
+                  <div class="card-body">
+                    <h2>Galleta mas vendida</h2>
+                    <p class="card-text">{{ masVendido[0][1] }}</p>
+                  </div>
+                  
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="card" style="width: 14rem;">
+                  <div class="card-body">
+                    <h2>Ganancias del Día</h2>
+                    <p class="card-text">{{ ventaDia }}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="card" style="width: 14rem;">
+                  <div class="card-body">
+                    <div id="clock"></div> <!-- Aquí se mostrará el reloj -->
+                  </div>
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="card" style="width: 14rem;">
+                  <div class="card-body">
+                    <h2>Insumos por rehabastecer</h2>
+                    <p class="card-text">{{ ventaDia }}</p>
+                  </div>
+                </div>
+              </div>
+
+
+              
+            </div>
+          </div> 
     </div>
-  </div>
-</body>
-</html>
+</div>
+</center>
+<script>
+  function updateClock() {
+    var now = new Date();
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    var seconds = now.getSeconds();
+    var timeString = formatTime(hours) + ":" + formatTime(minutes) + ":" + formatTime(seconds);
+    document.getElementById("clock").innerHTML = "Hora actual: " + timeString;
+    setTimeout(updateClock, 1000); // Actualiza cada segundo
+  }
+
+  function formatTime(time) {
+    return (time < 10 ? "0" : "") + time; // Agrega un cero delante si el número es menor que 10
+  }
+
+  updateClock(); // Iniciar la función para que el reloj se actualice inmediatamente
+</script>
+{% endblock %}
+

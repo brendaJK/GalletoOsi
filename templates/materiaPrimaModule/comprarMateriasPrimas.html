@@ -4,7 +4,7 @@
 <center>
 <div class="container">
     <div class="row">
-        <div style="margin-top: 20px;">
+        <div style="margin: 20px;">
             <h4> Compra de materias primas </h4>
         </div>
         
@@ -56,10 +56,10 @@
                             <option value="Cartera de 360 piezas">Cartera de 360 piezas</option>
                         </select>
                 </div>
-                <div class="form-group col-xs-12 col-sm-3 floating-label-form-group controls">
+                <!--<div class="form-group col-xs-12 col-sm-3 floating-label-form-group controls">
                     <label for="fechaCaducidad">Fecha caducidad</label><br>
                     <input type="date" name="fechaCaducidad" id="fechaCaducidad" class="form-control" required>
-                </div>
+                </div>-->
                 
                 <div class="form-group col-xs-12 col-sm-12 float-label-form-group controls m-4">
                     <button type="submit" class="btn btn-success">
@@ -67,23 +67,20 @@
                     Guardar compra
                     </button>
                 </div>
-            
             </div>
-            
-        
         </form>
     </div>
 
-    <div class="col-xs-7 col-sm-7 m-5">
+    <div class="col-xs-12 col-sm-12 m-5">
         <h4>Lista de compras </h4>
-        <table class="table m-3" id="final">
-            <thead class="thead-light">
-                <tr class="table-active">
-                    <th>Materia Prima</th>
-                    <th>Nombre Proveedor</th>
-                    <th>Costo</th>
-                    <th>Cantidad</th>
-                    <th>Fecha compra</th>
+        <table class="table" id="final">
+            <thead>
+                <tr>
+                    <th scope="col">Materia Prima</th>
+                    <th scope="col">Nombre Proveedor</th>
+                    <th scope="col">Costo</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Fecha compra</th>
                 </tr>
             </thead>
             <tbody>
