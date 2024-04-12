@@ -3,10 +3,7 @@ from datetime import datetime, timedelta
 from flask import render_template, request, redirect, url_for
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
-from templates.ventasModule.ventacontroller import venta, guardar_venta 
-from templates.produccionModule.produccionController import produccion
 from templates.loginModule.loginController import login, verificar_token, olvidar_contrasena, restablecer_contrasena, dashbord, vistaLogin, logout
-from templates.recetasModule.recetasController import recetas, guardar_recetas
 from templates.dashbordModule.dashbordController import dashbord, descargar_logs
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -52,14 +49,6 @@ def check_session_expiry():
                 logout_user()
                 return redirect(url_for('vistaLogin'))
         session['last_activity'] = datetime.now()
-
-app.route('/venta')(venta)  
-app.route('/guardar_venta', methods=['POST'])(guardar_venta)
-
-app.route('/produccion')(produccion)
-
-app.route('/recetas')(recetas)
-app.route('/guardar_recetas', methods=['POST'])(guardar_recetas)
 
 # app.route('/agregar_ingrediente/<int:receta_id>', methods=['POST'])(agregar_ingrediente)
 app.route('/')(vistaLogin)

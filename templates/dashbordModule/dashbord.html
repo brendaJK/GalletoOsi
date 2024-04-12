@@ -16,10 +16,9 @@
               <li><a href="{{ url_for('produccion') }}">Producción</a></li>
               <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
               <li><a href="{{ url_for('venta') }}">Ventas</a></li>
-              {% endif %}
-              {% if session['rol'] == 'Empleado' %}
+            {% endif %}
+            {% if session['rol'] == 'Empleado' %}
               <li><a href="{{ url_for('venta') }}">Ventas</a></li>
-
             {% endif %}
           </ul>
         </div>
