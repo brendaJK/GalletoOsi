@@ -110,10 +110,7 @@ def verificar_token():
         if usuario:
             session['rol'] = usuario.rol
             registrar_entrada(current_user.id)
-            if session['rol'] == 'Administrador':
-                return redirect(url_for('dashbord'))
-            if session['rol'] == 'Empleado':
-                return redirect(url_for('venta'))
+            return redirect(url_for('venta'))
         else:
             flash("Correo electrónico o token incorrectos", "error")
             return render_template('loginModule/verificar_token.html')
@@ -172,10 +169,12 @@ def restablecer_contrasena(token):
             if confirmar_contrasena in contraseñas_inseguras:
                 flash("La contraseña es demasiado insegura. Por favor, elija una contraseña más segura.", "error")
                 return render_template('loginModule/restablecer_contrasena.html', token=token)
+            
             if len(confirmar_contrasena) < 8 or not any(c.isupper() for c in confirmar_contrasena) \
                 or not any(c.islower() for c in confirmar_contrasena) or not any(c.isdigit() for c in confirmar_contrasena):
                 flash("La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula, una letra minúscula y un número.", "error")
                 return render_template('loginModule/restablecer_contrasena.html', token=token)            
+            
             if len(confirmar_contrasena) < 8 or not any(c.isupper() for c in confirmar_contrasena) \
                 or not any(c.islower() for c in confirmar_contrasena) or not any(c.isdigit() for c in confirmar_contrasena):
                 flash("La contraseña de confirmación debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula, una letra minúscula y un número.", "error")

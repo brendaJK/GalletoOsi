@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block container %}
+<center>
+<div class="container">
+    <div class="row">
+        <div style="margin-top: 20px;">
+            <h4> Productos </h4>
+        </div>
+        
+        <form name="sent" action="/productos" id="contactForm" method="POST">
+            <div class="row control-group">
+                <div class="form-group col-xs-6 col-sm-6 float-label-form-group">
+                    <label for="razonSocial">Nombre de la galleta</label><br>
+                    <input type="text" name="razonSocial" id="razonSocial" class="form-control" required>
+                    
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-xs-7 col-sm-7 m-5">
+        <h4>Lista de productos </h4>
+        <table class="table" id="final">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Eliminar</th>
+                    <th scope="col">Volver a usar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in producto %}
+                <tr>
+                    <td>{{ prod.nombre }}</td>
+                    <td>
+                        <form action="/eliminar_producto/{{ prod.idProducto }}" method="POST">
+                            
+                            <button type="submit" class="btn" style="background-color: #c24a3a; color : #f7f6e4">Eliminar</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/activar_producto/{{ prod.idProducto }}" method="POST">
+                            <button type="submit" class="btn btn-success" style="color : #f7f6e4"{% if prod.estatus == "Inactivo" %} {% else %} disabled {% endif %}>Activar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</center>
+{% endblock %}

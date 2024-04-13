@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block container %}
+<center>
+<div class="container">
+    <div class="row">
+        <div style="margin-top: 20px;">
+            <h4> Nuevo usuario </h4>
+        </div>
+        
+        <form name="sent" action="/usuarioNuevo" id="contactForm" method="POST">
+            <div class="row control-group">
+                <div class="form-group col-xs-4 col-sm-4 float-label-form-group">
+                    <label for="razonSocial">Nombre(s)</label><br>
+                    <input type="text" name="nombre" id="nombre" class="form-control" required>
+                </div>
+                <div class="form-group col-xs-4 col-sm-4 float-label-form-group">
+                    <label for="razonSocial">Primer apellido</label><br>
+                    <input type="text" name="primerApellido" id="primerApellido" class="form-control" required>
+                </div>
+                <div class="form-group col-xs-4 col-sm-4 float-label-form-group">
+                    <label for="razonSocial">Segundo apellido</label><br>
+                    <input type="text" name="segundoApellido" id="segundoApellido" class="form-control" required>
+                </div>
+                <div class="form-group col-xs-4 col-sm-4 float-label-form-group">
+                    <label for="razonSocial">Correo</label><br>
+                    <input type="text" name="razonSocial" id="razonSocial" class="form-control" required>
+                    
+                </div>
+                <div class="form-group col-xs-4 col-sm-4 float-label-form-group">
+                    <label for="nombreP">Contraseña</label><br>
+                    <input type="text" name="nombreP" id="nombreP" class="form-control" required>
+                </div>
+                <div class="form-group col-xs-4 col-sm-4 float-label-form-group">
+                    <label>Rol del usuario</label>
+                        <select name="rol" id="rol" class="form-control">
+                            <option value="rol1">Rol1</option>
+                            <option value="rol2">Rol2</option>
+                            <option value="rol3">Rol3</option>
+                        </select>
+                </div>                
+                <div class="form-group col-xs-12 col-sm-12 float-label-form-group controls m-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus"></i>
+                        Agregar usuario
+                    </button>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+
+    <div class="col-xs-7 col-sm-7 m-5">
+        <h4>Lista de usuarios </h4>
+        <table class="table table-hover m-3" id="final">
+            <thead class="thead-light">
+                <tr class="table-active">
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Estatus del usuario</th>
+                    <th scope="col">Eliminar</th>
+                    <th scope="col">Activar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usu in usuario %}
+                <tr>
+                    <td>{{ usu.nombreCompleto }}</td>
+                    <td>{{ usu.correo }}</td>
+                    <td>{{ usu.rol }}</td>
+                    <td>{{ usu.estatusUsuario }}</td>
+                    <td>
+                        <form action="/eliminar_usuario/{{ usu.idUsuario }}" method="POST">
+                            <button type="submit" class="btn" style="background-color: #c24a3a; color : #f7f6e4"{% if usu.estatusUsuario == "activo" %} {% else %} disabled {% endif %}>Desactivar</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/activar_usuario/{{ usu.idUsuario }}" method="POST">
+                            <button type="submit" class="btn btn-success" style="color : #f7f6e4"{% if usu.estatusUsuario == "Inactivo" %} {% else %} disabled {% endif %}>Activar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</center>
+{% endblock %}

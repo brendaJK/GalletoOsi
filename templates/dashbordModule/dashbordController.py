@@ -9,16 +9,30 @@ from io import BytesIO
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from models import LogsInicio, Usuarios
+from models import LogsInicio, Usuarios, DetalleVenta, Venta, db
 from email.message import EmailMessage
+from sqlalchemy import func
 
 bcrypt = Bcrypt()
 
 @login_required
 def dashbord():
-    if session['rol'] == 'Empleado':
-        return redirect(url_for('venta'))
-    return render_template('dashbordModule/dashbord.html') 
+    masVendido = db.session.query(func.count(DetalleVenta.nombreGalleta), DetalleVenta.nombreGalleta)\
+                      .group_by(DetalleVenta.nombreGalleta)\
+                      .order_by(func.count(DetalleVenta.nombreGalleta).desc())\
+                      .limit(1)\
+                      .all()
+    ventaDia = db.session.query(func.sum(Venta.total)).scalar()
+    
+    return render_template('dashbordModule/dashbord.html',masVendido = masVendido , ventaDia= ventaDia) 
+
+@login_required
+def ventaDia():
+
+    ventaDia = db.session.query(func.sum(Venta.total)).scalar()
+    
+    return render_template('dashbordModule/dashbord.html', ventaDia= ventaDia) 
+
 @login_required
 def descargar_logs():
     registros_logs = LogsInicio.query.all()

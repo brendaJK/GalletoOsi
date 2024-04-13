@@ -1,171 +1,369 @@
+{% extends "layout.html" %}
+{% block container %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <title>Venta de Galletas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+    <style>
+        body {
+            background-color: #f7f6e4;
+            color: #5f3711;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        select,
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .precio-venta {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f6ae48;
+            margin-top: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 8px; /* Reducido el padding */
+            background-color: #f6ae48;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #d88e33;
+        }
+        h2 {
+            margin-top: 40px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f6f6e2;
+        }
+        .footer-button {
+            text-align: center;
+            margin-top: 10px; 
+        }
+        .footer-button button {
+            background-color: #5f3711;
+            color: #fff;
+            margin-top: 10px; 
+        }
+    </style>
 </head>
 <body>
+    <form action="{{ url_for('proveedorpago') }}" method="post">
+        <div class="footer-button">
+            <button type="submit">Pago a Proveedor</button>
+        </div>
+    </form>
     <form id="form-ventas" method="post">
         <div class="form-group">
-            <label for="nombreCliente">Nombre del Cliente</label>
-            <input type="text" id="nombreCliente" name="nombreCliente" class="form-control" required>
-        </div>
-        
-        <div class="form-group">
             <label for="tipoVenta">Tipo de Venta</label>
-            <select id="tipoVenta" name="tipoVenta" class="form-control">
+            <select id="tipoVenta" name="tipoVenta">
                 <option value="unidad">Unidad</option>
                 <option value="caja">Caja</option>
                 <option value="gramo">Gramo</option>
             </select>
         </div>
         <div class="form-group">
-            <label for="cantidad">Cantidad</label>
-            <input type="text" id="cantidad" name="cantidad" class="form-control" required>
-        </div>
-        
-        
-        <div class="form-group">
             <label for="tipoGalleta">Tipo de Galleta</label>
-            <select id="tipoGalleta" name="tipoGalleta" class="form-control">
-                <option value="chocolate">Chocolate</option>
-                <option value="vainilla">Vainilla</option>
-                <option value="fresa">Fresa</option>
+            <select id="tipoGalleta" name="tipoGalleta" onchange="actualizarPrecioVenta()">
+                {% for producto in produccion %}
+                    <option value="{{ producto.nombreProducto }}" data-costo-produccion="{{ producto.costo_por_unidad }}">{{ producto.nombreProducto }}</option>
+                {% endfor %}
             </select>
+            <h3 id="cantidadDisponible"></h3>
         </div>
-        <button type="button" class="btn btn-primary" onclick="guardarFila()">Enviar</button>
+        <div class="form-group">
+            <label for="cantidad">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" required>
+        </div>
+        <div class="form-group">
+            <h2 id="precioVenta" name="precioVenta" class="precio-venta"></h2>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="guardarFila()">Agregar</button>
     </form>
-    
+
     <h2>Tabla de Ventas</h2>
     <table id="tabla-ventas">
         <thead>
             <tr>
-                <th>Nombre del Cliente</th>
                 <th>Tipo de Venta</th>
                 <th>Cantidad</th>
                 <th>Tipo de Galleta</th>
+                <th>SubTotal</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for venta in ventas %}
-            <tr>
-                <td>{{ venta.nombreCliente }}</td>
-                <td>{{ venta.tipoVenta }}</td>
-                <td>{{ venta.cantidad }}</td>
-                <td>{{ venta.tipoGalleta }}</td>
-                <td><button onclick="eliminarFila(this)">Eliminar</button></td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
-    <button onclick="enviarVentas()">Confirmar Venta</button>
+    <h1 id="total"></h1>
+    <div class="footer-button">
+        <button id="botonCobrar" onclick="cobrar()" disabled>Cobrar</button>
+    </div>
+    <div class="footer-button">
+        <button id="botonConfirmar" onclick="confirmarVenta()">Confirmar Venta</button>
+    </div>
+</body>
+</html>
 
     <script>
+    function guardarFila() {
         
-
-        function guardarFila() {
-            var nombreCliente = document.getElementById('nombreCliente').value;
-            var tipoVenta = document.getElementById('tipoVenta').value;
-            var cantidad = document.getElementById('cantidad').value;
-            var tipoGalleta = document.getElementById('tipoGalleta').value;
-            
-            if (!nombreCliente || !tipoVenta || !cantidad || !tipoGalleta) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Por favor, complete todos los campos.',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                return;
-            }
-
-            var nuevaFila = '<tr><td>' + nombreCliente + '</td><td>' + tipoVenta + '</td><td>' + cantidad + '</td><td>' + tipoGalleta + '</td><td><button onclick="eliminarFila(this)">Eliminar</button></td></tr>';
-            document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0].innerHTML += nuevaFila;
+    var tipoVenta = document.getElementById('tipoVenta').value;
+    var tipoGalleta = document.getElementById('tipoGalleta').value;
+    var cantidad = parseInt(document.getElementById('cantidad').value);
+    var precioVentaPorUnidad = parseFloat(document.getElementById('precioVenta').textContent.split(": ")[1]);
+    if (!tipoVenta || !tipoGalleta || isNaN(cantidad)) {
+    Swal.fire({
+        icon: 'warning',
+        title: '¡Error!',
+        text: 'Por favor, complete todos los campos antes de agregar a la tabla.',
+        timer: 2000, 
+        timerProgressBar: true, 
+        toast: true, 
+        position: 'top-end',
+        showConfirmButton: false 
+    });
+    return;
         }
+      
 
-        function eliminarFila(button) {
-            var fila = button.parentNode.parentNode;
-            fila.parentNode.removeChild(fila);
+    var subtotal = 0;
+
+    if (tipoVenta === 'unidad') {
+        subtotal = cantidad * precioVentaPorUnidad;
+    } else if (tipoVenta === 'caja') {
+        var galletasPorCaja =15;
+        galletas = cantidad * galletasPorCaja
+        subtotal = galletas * precioVentaPorUnidad;
+        subtotal -= subtotal * 0.02; // Aplicar el descuento del 2%
+    } else if (tipoVenta === 'gramo') {
+        var pesoPorGalleta = 25;
+        var galletasPorGramo = Math.floor(cantidad / pesoPorGalleta);
+        subtotal = galletasPorGramo * precioVentaPorUnidad;
+        subtotal -= subtotal * 0.03; // Aplicar el descuento del 2%
+    }
+    
+    var nuevaFila = '<tr><td>' + tipoVenta + '</td><td>' + cantidad + '</td><td>' + tipoGalleta + '</td><td>' + subtotal.toFixed(1) + '</td><td><button onclick="eliminarFila(this)">Eliminar</button></td></tr>';
+    document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0].innerHTML += nuevaFila;
+    document.getElementById('botonCobrar').disabled = false;
+    actualizarTotal();
+    
+}
+function eliminarFila(botonEliminar) {
+    var fila = botonEliminar.parentNode.parentNode;
+    fila.parentNode.removeChild(fila);
+    actualizarTotal();
+}
+function actualizarPrecioVenta() {
+    var selectTipoGalleta = document.getElementById('tipoGalleta');
+    var selectedOption = selectTipoGalleta.options[selectTipoGalleta.selectedIndex];
+    var costoProduccion = parseFloat(selectedOption.getAttribute('data-costo-produccion'));
+    var margenBeneficio = 0.5; 
+    var precioVenta = costoProduccion * (1 + margenBeneficio);
+
+    document.getElementById('precioVenta').textContent = "Precio de venta por unidad: " + precioVenta.toFixed(2);  
+}
+function actualizarTotal() {
+    var total = 0;
+    var tablaVentas = document.getElementById('tabla-ventas');
+    var filas = tablaVentas.getElementsByTagName('tr');
+    for (var i = 0; i < filas.length; i++) {
+        var celdas = filas[i].getElementsByTagName('td');
+        if (celdas.length >= 4) { 
+            var subtotal = parseFloat(celdas[3].textContent);
+            total += subtotal;
         }
+    }
+    document.querySelector('h1#total').textContent = 'Total: ' + total.toFixed(2);
+}
 
-        function enviarVentas() {
-            var ventas = [];
-            var tbody = document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0];
-            var rows = tbody.getElementsByTagName('tr');
 
-            for (var i = 0; i < rows.length; i++) {
-                var cells = rows[i].getElementsByTagName('td');
-                var venta = {
-                    nombreCliente: cells[0].innerText,
-                    tipoVenta: cells[1].innerText,
-                    cantidad: cells[2].innerText,
-                    tipoGalleta: cells[3].innerText
-                };
-                ventas.push(venta);
+
+
+function cobrar() {
+    var totalVenta = parseFloat(document.querySelector('h1#total').textContent.replace('Total: ', ''));
+    Swal.fire({
+        title: 'Cobrar',
+        html: '<input id="montoRecibido" class="swal2-input" type="number" placeholder="Monto recibido">',
+        showCancelButton: true,
+        confirmButtonText: 'Cobrar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+            const montoRecibido = Swal.getPopup().querySelector('#montoRecibido').value;
+            if (!montoRecibido) {
+                Swal.showValidationMessage('Por favor, ingrese el monto recibido');
             }
-
-            if (ventas.length === 0) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'No hay ventas para enviar.',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                return;
-            }
-
-            var ventasJSON = JSON.stringify(ventas);
-            fetch("/guardar_venta", {
-                method: "POST",
+            return montoRecibido;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const montoRecibido = parseFloat(result.value);
+            fetch('/actualizar_caja', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    'montoRecibido': montoRecibido,
+                    'totalVenta': totalVenta
+                }),
                 headers: {
-                    "Content-Type": "application/json",
-                },
-                body: ventasJSON,
-            })
-            .then((response) => {
-                if (response.ok) {
-                    limpiarTablaVentas();
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Ventas guardadas correctamente!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Error en el servidor al guardar las ventas'
-                    });
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             })
-            .catch((error) => {
-                console.error("Error en la solicitud:", error);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cambio = data.cambio;
+                    Swal.fire('Cobro exitoso', `El cambio es: ${cambio.toFixed(2)}`, 'success');
+                    document.querySelectorAll('button[data-accion="cobrar"]').forEach(function(boton) {
+                        boton.disabled = true;
+                        var botonConfirmar = document.getElementById('botonConfirmar');
+                        botonConfirmar.disabled = true;
+                    });
+                } else {
+                    Swal.fire('Error', 'Ocurrió un error al actualizar la caja', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Ocurrió un error al actualizar la caja', 'error');
             });
         }
+    });
+}
 
-        function limpiarTablaVentas() {
-            var tabla = document.getElementById("tabla-ventas");
-            tabla.getElementsByTagName("tbody")[0].innerHTML = "";
+function confirmarVenta() {
+
+    var tablaVentas = document.getElementById('tabla-ventas');
+    var filas = tablaVentas.getElementsByTagName('tr');
+    if (filas.length === 0) {
+        Swal.fire('Error', 'No hay ventas para confirmar', 'error');
+        return;
+    }
+
+    var totalVenta = parseFloat(document.querySelector('h1#total').textContent.replace('Total: ', ''));
+    var detallesVenta = [];
+
+    var filas = document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    for (var i = 0; i < filas.length; i++) {
+        var detalle = {};
+        detalle.tipoVenta = filas[i].getElementsByTagName('td')[0].textContent;
+        detalle.cantidad = parseInt(filas[i].getElementsByTagName('td')[1].textContent);
+        detalle.tipoGalleta = filas[i].getElementsByTagName('td')[2].textContent;
+        detalle.subtotal = parseFloat(filas[i].getElementsByTagName('td')[3].textContent.replace('$', ''));
+        detalle.usuario = 1
+        detallesVenta.push(detalle);
+    }
+    limpiarTabla()
+    var ventaJSON = {
+        totalVenta: totalVenta,
+        detallesVenta: detallesVenta
+    };
+
+    var ventaJSONString = JSON.stringify(ventaJSON);
+    fetch('/confirmar-venta', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: ventaJSONString
+    })
+    .then(response => {
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Venta confirmada',
+                text: 'La venta se ha registrado con éxito.'
+            });
+            return response.json();
+        }
+        throw new Error('Error en la solicitud');
+    })
+    .then(data => {
+        console.log(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        function limpiarTabla() {
+            document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0].innerHTML = '';
+            document.getElementById('cantidad').value = '';
+            actualizarTotal(); // Actualizar el total después de limpiar la tabla
         }
 
-
-
-
-        // Validaciones de campos 
         document.getElementById('cantidad').addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, ''); // Eliminar caracteres no numéricos
+            this.value = this.value.replace(/[^0-9]/g, '');
             });
-        document.getElementById('nombreCliente').addEventListener('input', function() {
-            this.value = this.value.replace(/[^A-Za-z\s]/g, '');
-            });
-        // Bloquear clic derecho y tecla F12
-        document.addEventListener('contextmenu', event => event.preventDefault());
+       document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('keydown', function(e) {
             if (e.key === "F12") {
                 e.preventDefault();
@@ -175,3 +373,4 @@
     </script>
 </body>
 </html>
+{% endblock %}

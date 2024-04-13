@@ -1,0 +1,199 @@
+{% extends "layout.html" %}
+{% block container %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venta de Galletas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+    <style>
+        body {
+            background-color: #f7f6e4;
+            color: #5f3711;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f6f6e2;
+        }
+        .ocultar-columna {
+            display: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #f6ae48;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #d88e33;
+            margin-top: 10px;
+        }
+        .footer-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer-button button {
+            background-color: #5f3711;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Proveedor</th>
+                <th>Materia Prima</th>
+                <th>Costo</th>
+                <th>Cantidad</th>
+                <th>Estatus</th>
+                <th>Pagar</th>
+                <th>Cancelar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for compra in compras %}
+            <tr>
+                <td class="ocultar-columna">{{ compra.idCMP }}</td>
+                <td>{{ compra.razonSocial }}</td>
+                <td>{{ compra.nombreMa }}</td>
+                <td>{{ compra.costo }}</td>
+                <td>{{ compra.cantidad }}</td>
+                <td>{{ compra.estatus }}</td>
+                <td><button onclick="mostrarVentana('{{ compra.idCMP }}', '{{ compra.nombreMa }}', '{{ compra.costo }}')">Seleccionar</button></td>
+                <td><button>Cancelar</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="form-group">
+        <label for="fechaPago">Fecha caducidad</label>
+        <input type="date" id="fechaPago" name="fechaPago">
+    </div>
+
+    <div class="footer-button">
+        <button onclick="mostrarVentanaAgregarDinero()">Agregar Dinero a Caja</button>
+    </div>
+
+    <script>
+        function mostrarVentana(idCMP, nombreProducto, totalPagar) {
+            Swal.fire({
+                title: 'Pagar Materia Prima',
+                html: `
+                    <p>Producto: ${ nombreProducto }</p>
+                    <p>Total a pagar: ${ totalPagar }</p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Pagar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    confirmarPago(idCMP, nombreProducto, totalPagar);
+                    Swal.fire('Pago confirmado', `Has pagado por ${ nombreProducto }.`, 'success');
+                    window.location.reload();
+                } else {
+                    Swal.fire('Pago cancelado', `No has realizado el pago por ${ nombreProducto }.`, 'info');
+                }
+            });
+        }
+
+        function confirmarPago(idCMP, nombreProducto, totalPagar) {
+            const fechaPago = document.getElementById('fechaPago').value;
+            const datosPago = {
+                idCMP: idCMP,
+                nombreProducto: nombreProducto,
+                totalPagar: totalPagar,
+                fechaCaducidad: fechaCaducidad
+            };
+            fetch('/pago-materiaPrima', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosPago)
+            })
+            .then(response => {
+            })
+            .catch(error => {
+                console.error('Error al enviar los datos de pago:', error);
+            });
+        }
+
+        function mostrarVentanaAgregarDinero() {
+            Swal.fire({
+                title: 'Agregar Dinero a Caja',
+                html: '<input id="montoAgregar" class="swal2-input" type="number" placeholder="Monto a agregar">',
+                showCancelButton: true,
+                confirmButtonText: 'Agregar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    const montoAgregar = Swal.getPopup().querySelector('#montoAgregar').value;
+                    if (!montoAgregar) {
+                        Swal.showValidationMessage('Por favor, ingrese el monto a agregar');
+                    }
+                    return montoAgregar;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const montoAgregar = parseFloat(result.value);
+                    if (!isNaN(montoAgregar)) {
+                        agregarDineroACaja(montoAgregar);
+                        Swal.fire('Dinero agregado a la caja', `Se ha agregado $${ montoAgregar } a la caja.`, 'success');
+                    } else {
+                        Swal.fire('Error', 'Ingrese un monto válido.', 'error');
+                    }
+                }
+            });
+        }
+
+        function agregarDineroACaja(montoAgregar) {
+            const datosCaja = {
+                monto: montoAgregar
+            };
+            fetch('/agregar-dinero-caja', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosCaja)
+            })
+            .then(response => {
+               
+            })
+            .catch(error => {
+                console.error('Error al agregar dinero a la caja:', error);
+            });
+        }
+
+
+        document.getElementById('cantidad').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "F12") {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

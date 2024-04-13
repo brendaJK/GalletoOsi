@@ -3,11 +3,15 @@ from datetime import datetime, timedelta
 from flask import render_template, request, redirect, url_for
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
-from templates.ventasModule.ventacontroller import venta, guardar_venta 
+from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja, proveedorpago, pagoMateriaPrima, agregarDinero
 from templates.produccionModule.produccionController import produccion
 from templates.loginModule.loginController import login, verificar_token, olvidar_contrasena, restablecer_contrasena, dashbord, vistaLogin, logout
 from templates.recetasModule.recetasController import recetas, guardar_recetas
-from templates.dashbordModule.dashbordController import dashbord, descargar_logs
+from templates.dashbordModule.dashbordController import dashbord, descargar_logs,ventaDia
+from templates.materiaPrimaModule.materiasPrimasController import maPrimas,eliminar_materia,comprarMateriasPrimas,inventarioMateriasPrimas,eliminar_inventario
+from templates.proveedorModule.proveedorController import proveedores,eliminar_proveedor
+from templates.reporteVentaModule.reporteVentaController import reporte_venta, filtrar_y_imprimir
+from templates.produccionModule.produccionController import productos
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from models import db, Usuarios, LogsInicio
@@ -53,24 +57,37 @@ def check_session_expiry():
                 return redirect(url_for('vistaLogin'))
         session['last_activity'] = datetime.now()
 
-app.route('/venta')(venta)  
-app.route('/guardar_venta', methods=['POST'])(guardar_venta)
-
+app.route('/venta',methods=['GET','POST'])(venta)
+app.route('/confirmar-venta', methods=['POST'])(confirmar_venta)
+app.route('/actualizar_caja', methods=['POST'])(actualizar_caja)
+app.route('/pago-proveedor', methods=['POST'])(proveedorpago)
+app.route('/pago-materiaPrima', methods=['POST'])(pagoMateriaPrima)
+app.route('/agregar-dinero-caja', methods=['POST'])(agregarDinero)
 app.route('/produccion')(produccion)
 
-app.route('/recetas')(recetas)
-app.route('/guardar_recetas', methods=['POST'])(guardar_recetas)
+app.route('/maPrimas',methods=['GET', 'POST'])(maPrimas)
 
+app.route('/comprarMateriasPrimas', methods=['GET', 'POST'])(comprarMateriasPrimas)
+app.route('/eliminar_materia/<int:materia_id>', methods=['POST'])(eliminar_materia)
+app.route('/inventarioMateriasPrimas',methods=['GET', 'POST'])(inventarioMateriasPrimas)
+app.route('/eliminar_inventario/<int:inventario_id>', methods=['POST'])(eliminar_inventario)
+app.route('/proveedores',methods=['GET', 'POST'])(proveedores)
+app.route('/eliminar_proveedor/<int:proveedor_id>',methods=['POST'])(eliminar_proveedor)
+app.route('/reporte_venta',methods=['GET', 'POST'])(reporte_venta)
+app.route('/filtrar_y_imprimir',methods=['GET', 'POST'])(filtrar_y_imprimir)
+app.route('/ventaDia')(ventaDia)
+app.route('/productos')(productos)
+
+
+app.route('/recetas')(recetas)
 # app.route('/agregar_ingrediente/<int:receta_id>', methods=['POST'])(agregar_ingrediente)
 app.route('/')(vistaLogin)
 app.route('/login', methods=['GET', 'POST'])(login)
-
 app.route('/verificar_token', methods=['GET', 'POST'])(verificar_token)
 app.route('/olvidar_contrasena', methods=['GET', 'POST'])(olvidar_contrasena)
 app.route('/restablecer_contrasena/<token>', methods=['GET', 'POST'])(restablecer_contrasena)
 app.route('/dashbord')(dashbord)
 app.route('/descargar_logs', methods=['GET'])(descargar_logs)
-
 app.route('/logout')(logout)
 
 if __name__ == '__main__':
