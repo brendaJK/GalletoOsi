@@ -1,0 +1,99 @@
+{% extends 'layout.html' %}
+
+{% block container%}
+
+<h2>Solicitudes de Produccion de Galletas</h2>
+
+<table style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Galleta</th>
+			<th>Estatus</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        {% for pendiente in pendientes %}
+        <tr>  
+            <td>{{pendiente.idProduccion}}</td>
+            <td>{{pendiente.nombreGalleta}}</td>
+			<td>{{pendiente.Estatus}}</td>
+            <td><button style="padding: 5px 10px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;"
+                id="btn-aceptar-{{pendiente.idProduccion}}"
+                data-id="{{pendiente.idProduccion}}">Aceptar</button></td>
+        </tr>
+        {% endfor %}
+   
+    </tbody>
+</table>
+
+<br>
+
+<h2>Produccion de Galletas En Proceso</h2>
+
+<table style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cantidad</th>
+			<th>Estatus</th>
+            <th>Accion</th>
+        </tr>
+    </thead>
+    <tbody>
+      
+        {% for proceso in procesos %}
+        <tr>  
+            <td>{{proceso.idProduccion}}</td>
+            <td>{{proceso.nombreGalleta}}</td>
+			<td>{{proceso.Estatus}}</td>
+            <td><a href="mermaProduccion?idProduccion={{proceso.idProduccion}}"
+               class="btn btn-warning">Merma</a>
+            <button class="btn btn-danger" 
+                    id="btn-terminar-{{proceso.idProduccion}}"
+                    data-id="{{proceso.idProduccion}}">Terminar</button></td>
+        </tr>
+        {% endfor %}
+        
+    </tbody>
+</table>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('button[id^="btn-aceptar"]').click(function() {
+            var idProduccion = $(this).data('id');
+            $.post('/aceptarSolicitud', { idProduccion: idProduccion }, function(data) {
+                console.log(data);
+                
+                window.location.reload('/produccionesPendientes');
+            });
+        });
+    });
+
+
+
+
+    $(document).ready(function() {
+        $('button[id^="btn-terminar"]').click(function() {
+            var idProduccion = $(this).data('id');
+            $.post('/terminarSolicitud', { idProduccion: idProduccion }, function(data) {
+                console.log(data);
+                
+                window.location.reload('/produccionesPendientes');
+            });
+        });
+    });
+    
+</script>
+
+
+{% endblock %}

@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, url_for
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja, proveedorpago, pagoMateriaPrima, agregarDinero
-from templates.produccionModule.produccionController import produccion, guardarProduccion
+from templates.produccionModule.produccionController import produccion, guardarProduccion, produccionesPendientes, aceptarSolicitud, cancelarSolicitud, terminarSolicitud, registrarMermaProd
 from templates.loginModule.loginController import login, verificar_token, olvidar_contrasena, restablecer_contrasena, dashbord
 from templates.recetasModule.recetasController import recetas, eliminar_ingrediente, recetas_detalle, agregar_ingrediente
 from templates.loginModule.loginController import vistaLogin
@@ -61,6 +61,11 @@ app.route('/dashbord')(dashbord)
 
 app.route('/produccion')(produccion)
 app.route('/guardarProduccion', methods=['GET', 'POST'])(guardarProduccion)
+app.route('/produccionesPendientes', methods = ['GET', 'POST'])(produccionesPendientes)
+app.route('/aceptarSolicitud', methods = ['POST'])(aceptarSolicitud)
+app.route('/cancelarSolicitud', methods = ['POST'])(cancelarSolicitud)
+app.route('/terminarSolicitud', methods = ['POST'])(terminarSolicitud)
+app.route('/mermaProduccion', methods = ['POST', 'GET'])(registrarMermaProd)
 
 app.route('/inventario')(Inventario)
 

@@ -12,7 +12,7 @@ def Inventario ():
     galletasInv = db.session.query(
     Produccion.nombreGalleta,
     func.sum(Produccion.cantidadProducida).label('stock'),
-    func.avg(Produccion.costoProduccion).label('costoPromedioProduccion')
+    func.round(func.avg(Produccion.costoProduccion), 2).label('costoPromedioProduccion')
     ).filter(Produccion.Estatus == 'Disponible').group_by(Produccion.nombreGalleta).all()
 
     for resultado in galletasInv:

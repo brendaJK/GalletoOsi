@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block container %}
+    
+
+  <div class="container mt-5">
+    <h2 class="mb-4">Registro de Merma de Producción</h2>
+    <form action="/mermaProduccion" method="POST">
+      <div class="form-group">
+        <label for="produccion">Producción:</label>
+
+        <input type="text" class="form-control" id="produccion" name="nombreGalleta" value="{{nombreGalleta}}" readonly>
+        <!-- Puedes utilizar un campo oculto para almacenar el ID de la producción -->
+        <input type="hidden" name="produccion_id" value="{{idProduccion}}">
+        <input type="hidden" name="usuario_id" value="{{idUsuario}}">
+        <input type="hidden" name="cantidadProd" value="{{cantidadProducida}}">
+      
+      
+      </div>
+      <div class="form-group">
+        <label for="descripcion">Descripción de la Merma:</label>
+        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Descripción de la merma"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Registrar Merma</button>
+
+    </form>
+    
+    <form action="/produccion" method="GET">
+    <button class="btn btn-danger">Cancelar</button>
+    </form>
+</div>
+
+
+  {% endblock %}

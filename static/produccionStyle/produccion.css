@@ -48,5 +48,9 @@ form {
     background-color: #543c37; /* Marrón más oscuro */
 }
 
-
+select.custom-select {
+   
+    color: #54391a; 
+    border-color: #795548; 
+}
   

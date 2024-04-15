@@ -42,6 +42,7 @@ class Caja(db.Model):
 class Produccion(db.Model):
     __tablename__ = 'produccion'
     idProduccion = db.Column(db.Integer, primary_key = True)
+    idProducto = db.Column(db.Integer)
     fechaProduccion = db.Column(db.Date)
     costoProduccion = db.Column(db.Double)
     fechaCaducidad = db.Column(db.Date)
@@ -49,18 +50,19 @@ class Produccion(db.Model):
     Estatus = db.Column(db.String(64))
     nombreGalleta = db.Column(db.String(64))
     cantidadProducida = db.Column(db.Integer)
+    fechaSolicitud = db.fechaProduccion = db.Column(db.DateTime)
 
 # Modelo de datos de producto
 class Producto(db.Model):
     __tablename__ = 'producto'
     idProducto = db.Column(db.Integer, primary_key = True)
-    idReceta = db.Column(db.Integer)
+    nombreProducto = db.Column(db.String(64))
+    precioVenta = db.Column(db.Double)
     
 # Modelo de datos de MermaProuccion
 class MermaProduccion(db.Model):
     __tablename__ = 'merma_produccion'
     idMerma = db.Column(db.Integer, primary_key = True)
-    idInventario = db.Column(db.Integer)
     idProduccion = db.Column(db.Integer)
     idUsuario = db.Column(db.Integer)
     cantidadMerma = db.Column(db.Double)
@@ -158,3 +160,16 @@ class Login(db.Model):
     passwor = db.Column(db.String(64), nullable=False) 
     token = db.Column(db.String(5), nullable=True) 
     rol = db.Column(db.String(50), nullable=False)
+
+
+
+class InventarioGalletas(db.Model):
+    __tablename__='inventario_galletas'
+    idInventarioG = db.Column(db.Integer, primary_key = True)
+    idProduccion = db.Column(db.Integer)
+    nombreGalleta = db.Column(db.String(64))
+    cantidadStock = db.Column(db.Integer)
+    fechaProduccion = db.Column(db.Date)
+    costoProduccion = db.Column(db.Double)
+    fechaCaducidad = db.Column(db.Date)
+    Estatus = db.Column(db.String(64))

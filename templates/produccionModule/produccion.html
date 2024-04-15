@@ -1,65 +1,73 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro de Producción - Tienda de Galletas</title>
-  <link rel="stylesheet" href="../../static/produccionStyle/produccion.css">
-  <link rel="stylesheet" href="../../static/css/header.css">
+{% extends 'layout.html' %}
 
-</head>
-<body>
-  <header class="header">
-    <div class="navbar">
-      <ul>
-        <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
-        <li><a href="{{ url_for('produccion') }}">Producción</a></li>
-        <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
-        <li><a href="{{ url_for('venta') }}">Ventas</a></li>
-      </ul>
-    </div>
-    <div class="cerrar">
-        <a href="{{ url_for('vistaLogin') }}">
-            <button class="btn btn-primary" style="background: black;color: white; border: none;">Cerrar sesion</button>
-        </a>
-    </div>
-</header>
+{% block container %}
+  
+<link rel="stylesheet" href="../../static/produccionStyle/produccion.css">
+<link rel="stylesheet" href="../../static/css/header.css">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
   <div class="container">
-    <h1>Registro de Producción</h1>
-    <form action="/guardarProduccion" method="post" id="produccion-form">
-      
-      <select name="Receta" id="slctReceta">
+    <h1>Solicitud de Producción</h1>
+    <form action="/guardarProduccion" method="POST" id="produccion-form">
+      <div class="col-md-6 mx-auto">
+      <select class="custom-select" name="Receta" id="slctReceta">
         {% for receta in optRecetas %}
-          <option value="{{receta.nombreGalleta}}">{{ receta.nombreGalleta }}</option>
+            {% if receta.nombreGalleta == "Galleta Chocolate" %}
+            <option value="{{receta.nombreGalleta}}" selected>{{ receta.nombreGalleta }}</option>
+            {% else %}
+            <option value="{{receta.nombreGalleta}}" >{{ receta.nombreGalleta }}</option>
+            {% endif %}
         {% endfor %}
-      
+      </div>
+
       </select>
-      <div class="form-group col-2" style="display: flex;">
-        
-        <label for="fechaCaducidad">Caducidad:</label>
-        <input type="date" id="fechaCaducidad" name="fechaCaducidad" required>
-      </div>
-      <div class="form-group">
-        <label for="costoProduccion">Costo de Producción:</label> <label for="">{{costoProduccion}}</label>
-      </div>
-      <!-- <div class="form-group">
-        <label for="cantidadProducida">Cantidad Producida:</label>
-        <input type="number" id="cantidadProducida" name="cantidadProducida" required>
-      </div> -->
       
-      <input class="btn-submit" type="submit" name="Registrar">
-    </form>
-  </div>
-<!-- 
-  <form action="/guardarProduccion" method="POST">
-    <select name="Receta" id="slctReceta">
-      {% for receta in optRecetas %}
-        <option value="{{receta.nombreGalleta}}">{{ receta.nombreGalleta }}</option>
-      {% endfor %}
-    </select>
-    <input type="submit" name="Registrar">
-  </form> -->
+      <br>
+
+      <button class="btn btn-success" type="submit" name="Solicitar" style="margin-left: 40%; margin-top: 30px;">Solicitar</button>
+</form>
+</div>
+
+<br>
 
 
-</body>
-</html>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID de Producción</th>
+            <th>Estado</th>
+            <th>Fecha de Solicitud</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for produccion in solicitudes %}
+        <tr>
+            <td>{{ produccion.idProduccion }}</td>
+            <td>{{ produccion.Estatus }}</td>
+            <td>{{ produccion.fechaSolicitud }}</td>
+            <td><button class="btn btn-danger" 
+              id="btn-cancelar-{{produccion.idProduccion}}"
+                data-id="{{produccion.idProduccion}}">Cancelar</button></td>
+          </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('button[id^="btn-cancelar"]').click(function() {
+            var idProduccion = $(this).data('id');
+            $.post('/cancelarSolicitud', { idProduccion: idProduccion }, function(data) {
+                console.log(data);
+                
+                window.location.reload('/produccion');
+            });
+        });
+    });
+    
+</script>  
+
+
+{% endblock %}
