@@ -89,6 +89,21 @@
     </style>
 </head>
 <body>
+    <header class="header">
+        <div class="navbar">
+          <ul>
+            <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('produccion') }}">Producción</a></li>
+            <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
+            <li><a href="{{ url_for('venta') }}">Ventas</a></li>
+          </ul>
+        </div>
+        <div class="cerrar">
+            <a href="{{ url_for('vistaLogin') }}">
+                <button class="btn btn-primary" style="background: black;color: white; border: none;">Cerrar sesion</button>
+            </a>
+        </div>
+  </header>
     <form action="{{ url_for('proveedorpago') }}" method="post">
         <div class="footer-button">
             <button type="submit">Pago a Proveedor</button>

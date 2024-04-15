@@ -4,6 +4,14 @@ from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
 from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja, proveedorpago, pagoMateriaPrima, agregarDinero, rechazoMateriaPrima
 from templates.produccionModule.produccionController import produccion
+from templates.loginModule.loginController import login, verificar_token, olvidar_contrasena, restablecer_contrasena, dashbord
+from templates.recetasModule.recetasController import recetas, eliminar_ingrediente, recetas_detalle, agregar_ingrediente
+from templates.loginModule.loginController import vistaLogin
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from models import db, Login
+from flask_bcrypt import generate_password_hash
+
 from templates.materiaPrimaModule.materiasPrimasController import maPrimas,eliminar_materia,comprarMateriasPrimas,inventarioMateriasPrimas
 from templates.proveedorModule.proveedorController import proveedores,eliminar_proveedor
 from templates.reporteVentaModule.reporteVentaController import reporte_venta, filtrar_y_imprimir
@@ -43,6 +51,20 @@ app.route('/registrar-usuario',methods=['GET', 'POST'])(registrar_usuario)
 
 #app.route('/alerta-galleta')(alertas)
 #app.route('/alerta-inventario')
+
+app.route('/recetas')(recetas)
+app.route('/eliminar_ingrediente/<int:detalle_id>', methods=['POST'])(eliminar_ingrediente)
+app.route('/recetas/<int:receta_id>', methods=['GET', 'POST'])(recetas_detalle)
+app.route('/agregar_ingrediente', methods=['POST'])(agregar_ingrediente)
+
+# app.route('/agregar_ingrediente/<int:receta_id>', methods=['POST'])(agregar_ingrediente)
+app.route('/')(vistaLogin)
+app.route('/login', methods=['GET', 'POST'])(login)
+app.route('/verificar_token', methods=['GET', 'POST'])(verificar_token)
+app.route('/olvidar_contrasena', methods=['GET', 'POST'])(olvidar_contrasena)
+app.route('/restablecer_contrasena/<token>', methods=['GET', 'POST'])(restablecer_contrasena)
+app.route('/dashbord')(dashbord)
+
 
 if __name__ == '__main__':
     from models import db

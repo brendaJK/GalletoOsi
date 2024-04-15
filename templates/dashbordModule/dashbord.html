@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="../../static/css/dashboard.css">
+  <link rel="stylesheet" href="../../static/css/header.css">
+</head>
+<body>
+    <header class="header">
+        <div class="navbar">
+          <ul>
+            <li><a href="{{ url_for('dashbord') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('produccion') }}">Producción</a></li>
+            <li><a href="{{ url_for('recetas') }}">Recetas</a></li>
+            <li><a href="{{ url_for('venta') }}">Ventas</a></li>
+          </ul>
+        </div>
+        <div class="cerrar">
+            <a href="{{ url_for('vistaLogin') }}">
+                <button class="btn btn-primary" style="background: black;color: white; border: none;">Cerrar sesion</button>
+            </a>
+        </div>
+    </header>
+  <div class="dashboard-container">
+    <h1>Dashboard</h1>
+    <div class="stats-container">
+      <div class="stat-box">
+        <h2>Galletas Vendidas</h2>
+        <p>500</p>
+      </div>
+      <div class="stat-box">
+        <h2>Ganancias del Día</h2>
+        <p>$1000</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

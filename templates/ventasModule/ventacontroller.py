@@ -206,4 +206,3 @@ def agregarDinero():
         return jsonify({'message': f'Se han agregado ${monto} a la caja correctamente'}), 200
     else:
         return jsonify({'error': 'No se encontró la caja'}), 404
-

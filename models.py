@@ -79,6 +79,40 @@ class MermaProduccion(db.Model):
     Descripcion = db.Column(db.String(150))
     Estatus = db.Column(db.String(25))
 
+# Modelo de datos de Materia Prima (al que le toco esta tabla no se que mas vaya a agregar)
+# class Materia_Prima(db.Model):
+#     __tablename__ = 'materia_prima'
+#     idMateriaPrima = db.Column(db.Integer, primary_key = True)
+#     idProveedor = db.Column(db.Integer)
+#     nombreMateriaP = db.Column(db.String(64))
+#     cantidad = db.Column(db.Double)
+
+
+class Login(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    correo = db.Column(db.String(100), nullable=False)
+    contrasenia = db.Column(db.String(64), nullable=False) 
+    token = db.Column(db.String(220), nullable=True) 
+    rol = db.Column(db.String(50), nullable=False)
+    
+class Recetas(db.Model):
+    __tablename__ = 'recetas'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(220), nullable=False)
+    descripcion = db.Column(db.String(220), nullable=False)
+    cantidadGalletas = db.Column(db.String(220), nullable=True)
+    pesoGalletas = db.Column(db.String(220), nullable=False)
+    imagen = db.Column(db.String(225), nullable=True)
+    detalles = db.relationship('RecetasDetalle', backref='receta', lazy=True)
+
+class RecetasDetalle(db.Model):
+    __tablename__ = 'recetas_detalle'
+    id = db.Column(db.Integer, primary_key=True)
+    iReceta = db.Column(db.Integer, db.ForeignKey('recetas.id'), nullable=False)
+    cantidad = db.Column(db.String(220), nullable=False)
+    ingrediente = db.Column(db.String(220), nullable=True)
+    material = db.Column(db.String(220), nullable=False)
 
 class Proveedor(db.Model): #creamos el mapeado para poder crear la tabla
     __tablename__='proveedor' # nos permite agregar un  nombre especifico
