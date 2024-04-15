@@ -2,11 +2,13 @@ from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_wtf.csrf import CSRFProtect
 from config import DevelopmentConfig
-from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja, proveedorpago, pagoMateriaPrima, agregarDinero
+from templates.ventasModule.ventacontroller import venta, confirmar_venta, actualizar_caja, proveedorpago, pagoMateriaPrima, agregarDinero, rechazoMateriaPrima
 from templates.produccionModule.produccionController import produccion
 from templates.materiaPrimaModule.materiasPrimasController import maPrimas,eliminar_materia,comprarMateriasPrimas,inventarioMateriasPrimas
 from templates.proveedorModule.proveedorController import proveedores,eliminar_proveedor
 from templates.reporteVentaModule.reporteVentaController import reporte_venta, filtrar_y_imprimir
+#from templates.alertasConsultas.alertasController import alertas
+from templates.userController.userController import registrar_usuario, user, bajaUser
 csrf=CSRFProtect()
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -21,6 +23,7 @@ app.route('/confirmar-venta', methods=['POST'])(confirmar_venta)
 app.route('/actualizar_caja', methods=['POST'])(actualizar_caja)
 app.route('/pago-proveedor', methods=['POST'])(proveedorpago)
 app.route('/pago-materiaPrima', methods=['POST'])(pagoMateriaPrima)
+app.route('/rechazo-materiaPrima',methods=['POST'])(rechazoMateriaPrima)
 app.route('/agregar-dinero-caja', methods=['POST'])(agregarDinero)
 app.route('/produccion')(produccion)
 
@@ -34,7 +37,12 @@ app.route('/eliminar_proveedor/<int:proveedor_id>',methods=['POST'])(eliminar_pr
 app.route('/reporte_venta',methods=['GET', 'POST'])(reporte_venta)
 app.route('/filtrar_y_imprimir',methods=['GET', 'POST'])(filtrar_y_imprimir)
 
+app.route('/users',methods=['GET', 'POST'])(user)
+app.route('/registrar-usuario',methods=['GET', 'POST'])(registrar_usuario)
+#app.route('/baja-usuario',methods=['GET', 'POST'])(registroUser)
 
+#app.route('/alerta-galleta')(alertas)
+#app.route('/alerta-inventario')
 
 if __name__ == '__main__':
     from models import db

@@ -38,18 +38,30 @@ class Caja(db.Model):
     idCaja = db.Column(db.Integer, primary_key=True)
     dineroCaja = db.Column(db.Float)
 
-# Modelo de datos Produccion
-class Produccion(db.Model):
-    __tablename__ = 'produccion'
-    idProduccion = db.Column(db.Integer, primary_key = True)
-    idReceta = db.Column(db.Integer)
+
+class InventarioGalletas(db.Model):
+    _tablename_='inventario_galletas'
+    idInventarioG = db.Column(db.Integer, primary_key = True)
+    idProduccion = db.Column(db.Integer)
+    nombreGalleta = db.Column(db.String(64))
+    cantidadStock = db.Column(db.Integer)
     fechaProduccion = db.Column(db.Date)
     costoProduccion = db.Column(db.Double)
     fechaCaducidad = db.Column(db.Date)
-    nombreProducto = db.Column(db.String(150))
-    cantiadadProducida = db.Column(db.Integer)
-    Estatus = db.Column(db.String(25))
+    Estatus = db.Column(db.String(64))
+
+class Produccion(db.Model):
+    __tablename__ = 'produccion'
+    idProduccion = db.Column(db.Integer, primary_key = True)
+    idProducto = db.Column(db.Integer)
+    fechaProduccion = db.Column(db.Date)
+    costoProduccion = db.Column(db.Double)
+    fechaCaducidad = db.Column(db.Date)
     idUsuario = db.Column(db.Integer)
+    Estatus = db.Column(db.String(64))
+    nombreGalleta = db.Column(db.String(64))
+    cantidadProducida = db.Column(db.Integer)
+    fechaSolicitud = db.fechaProduccion = db.Column(db.DateTime)
 
 # Modelo de datos de producto
 class Producto(db.Model):
@@ -112,6 +124,12 @@ class InventarioMateriaPrima(db.Model): #creamos el mapeado para poder crear la 
     cantidad=db.Column(db.String(100))
     estatus=db.Column(db.String(10))
     fechaCaducidad=db.Column(db.DateTime)    
+
+class Productos(db.Model):
+    _tablename_ = 'productos'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(220), nullable=False)
+    precio_venta = db.Column(db.String(220), nullable=False)
 
 #Modelo de datos Usuario xd
 class Usuario(db.Model):

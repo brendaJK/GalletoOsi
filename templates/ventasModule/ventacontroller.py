@@ -2,38 +2,36 @@ from flask import render_template, request, redirect, url_for, current_app, json
 from models import db
 from sqlalchemy import text, update 
 import forms
-from models import Venta, Caja, DetalleVenta, Produccion, CompraMateriaPrima, Proveedor, MateriaPrimas
+from models import Venta, Caja, DetalleVenta, CompraMateriaPrima, Proveedor, MateriaPrimas, InventarioMateriaPrima, InventarioGalletas,Productos
 from datetime import datetime
 
 
 def venta():
-    sql = text("""
-        SELECT idReceta, nombreProducto, MIN(idProduccion) AS idProduccion, 
-               SUM(cantiadadProducida) AS total_cantidad_producida,
-               AVG(costoProduccion / cantiadadProducida) AS costo_por_unidad
-        FROM produccion
-        GROUP BY idReceta, nombreProducto;
-    """)
-    result = db.session.execute(sql)
-    produccion = result.fetchall()
-
-    margen_beneficio = 0.5  
-    productos_con_precio_venta = []
+    # Actualizar el estado a "Agotado" si la cantidadStock es 0
+    actualizar_estado_agotado()
     
-    for producto in produccion:
-        costo_por_unidad = producto.costo_por_unidad
-        precio_venta_por_unidad = costo_por_unidad * (1 + margen_beneficio)
-        producto_con_precio_venta = {
-            "idReceta": producto.idReceta,
-            "nombreProducto": producto.nombreProducto,
-            "idProduccion": producto.idProduccion,
-            "total_cantidad_producida": producto.total_cantidad_producida,
-            "costo_por_unidad": costo_por_unidad,
-            "precio_venta_por_unidad": precio_venta_por_unidad
-        }
-        productos_con_precio_venta.append(producto_con_precio_venta)
+    try:
+        # Consulta para obtener el precio de venta y la cantidad total producida de cada galleta en stock
+        precios_venta = db.session.query(InventarioGalletas.nombreGalleta.label('nombreProducto'),
+                                          db.func.sum(InventarioGalletas.cantidadStock).label('total_cantidad_producida'),
+                                          Productos.precio_venta).\
+                                          join(Productos, InventarioGalletas.nombreGalleta == Productos.nombre).\
+                                          filter(InventarioGalletas.Estatus == 'En stock').\
+                                          group_by(InventarioGalletas.nombreGalleta, Productos.precio_venta).all()
 
-    return render_template('ventasModule/venta.html', produccion=productos_con_precio_venta)
+        return render_template('ventasModule/venta.html', produccion=precios_venta)
+    except Exception as e:
+        # Manejar errores si hay algún problema con la consulta
+        return f"Error al obtener los datos de venta: {str(e)}"
+def actualizar_estado_agotado():
+    try:
+       
+        db.session.query(InventarioGalletas).filter(InventarioGalletas.cantidadStock == 0).update({InventarioGalletas.Estatus: 'Agotado'})
+        db.session.commit() 
+        return "Se actualizó el estado correctamente."
+    except Exception as e:
+        db.session.rollback() 
+        return f"Error al actualizar el estado: {str(e)}"
 
 
 def actualizar_caja():
@@ -71,32 +69,32 @@ def confirmar_venta():
         else:
             return jsonify({'error': 'Tipo de venta no reconocido'}), 400
 
-        producciones_galletas = Produccion.query.filter_by(nombreProducto=detalle['tipoGalleta'], Estatus='En proceso').filter(Produccion.cantiadadProducida > 0).order_by(Produccion.fechaProduccion).all()
+        producciones_galletas = InventarioGalletas.query.filter_by(nombreGalleta=detalle['tipoGalleta'], Estatus='En stock').filter(InventarioGalletas.cantidadStock > 0).order_by(InventarioGalletas.fechaProduccion).all()
         cantidad_comprada_galletas_restantes = cantidad_comprada_galletas
 
         for produccion in producciones_galletas:
-            cantidad_disponible = produccion.cantiadadProducida
+            cantidad_disponible = produccion.cantidadStock
             if cantidad_disponible >= cantidad_comprada_galletas_restantes:
-                produccion.cantiadadProducida -= cantidad_comprada_galletas_restantes
+                produccion.cantidadStock -= cantidad_comprada_galletas_restantes
                 cantidad_comprada_galletas_restantes = 0
                 cantidad_vendida_total += cantidad_comprada_galletas
                 break  
             else:
                 cantidad_comprada_galletas_restantes -= cantidad_disponible
-                produccion.cantiadadProducida = 0
+                produccion.cantidadStock = 0
                 cantidad_vendida_total += cantidad_disponible
 
         if cantidad_comprada_galletas_restantes > 0:
             for produccion in producciones_galletas:
-                cantidad_disponible = produccion.cantiadadProducida
+                cantidad_disponible = produccion.cantidadStock
                 if cantidad_disponible > 0:
                     if cantidad_disponible >= cantidad_comprada_galletas_restantes:
-                        produccion.cantiadadProducida -= cantidad_comprada_galletas_restantes
+                        produccion.cantidadStock -= cantidad_comprada_galletas_restantes
                         cantidad_comprada_galletas_restantes = 0
                         cantidad_vendida_total += cantidad_comprada_galletas_restantes
                     else:
                         cantidad_comprada_galletas_restantes -= cantidad_disponible
-                        produccion.cantiadadProducida = 0
+                        produccion.cantidadStock = 0
                         cantidad_vendida_total += cantidad_disponible
                     break  
 
@@ -144,27 +142,50 @@ def proveedorpago():
         CompraMateriaPrima.estatus
     ).join(Proveedor, CompraMateriaPrima.idProveedor == Proveedor.idProveedor
     ).join(MateriaPrimas, CompraMateriaPrima.idMP == MateriaPrimas.idMP
-    ).filter(CompraMateriaPrima.estatus == 'Pendiente'
+    ).filter(CompraMateriaPrima.estatus == 'Pedido'
     ).all()
 
         return render_template('ventasModule/pagoProveedor.html', compras=compras)
 
+
 def pagoMateriaPrima():
-        data = request.get_json()
-        idCMP = data['idCMP']
-        totalPagar = float(data['totalPagar'])
-        nombreProducto = data['nombreProducto']
+    data = request.get_json()
+    idCMP = data['idCMP']
+    totalPagar = float(data['totalPagar'])
+    fecha_caducidad = datetime.strptime(data['fechaCaducidad'], '%Y-%m-%d')
 
-        compra = CompraMateriaPrima.query.get(idCMP)
-        compra.estatus = 'Pagado'
-        db.session.commit()
+    inventario = InventarioMateriaPrima.query.filter_by(idCMP=idCMP).first()
+    inventario.fechaCaducidad = fecha_caducidad
+    inventario.estatus = "Disponible"
+    db.session.commit()
 
-    
-        caja = Caja.query.first() 
-        caja.dineroCaja -= totalPagar
-        db.session.commit()
+    compra = CompraMateriaPrima.query.get(idCMP)
+    compra.estatus = 'Pagado'
+    db.session.commit()
 
-        return jsonify({'message': 'Pago realizado correctamente'}), 200
+    caja = Caja.query.first() 
+    caja.dineroCaja -= totalPagar
+    db.session.commit()
+
+    return jsonify({'message': 'Pago realizado correctamente'}), 200
+
+def rechazoMateriaPrima():
+    data = request.get_json()
+    idCMP = data['idCMP']
+    totalPagar = float(data['totalPagar'])
+    estatus = data['estatus']
+
+    compra = CompraMateriaPrima.query.get(idCMP)
+    compra.estatus = estatus
+    db.session.commit()
+
+    inventario = InventarioMateriaPrima.query.filter_by(idCMP=idCMP).first()
+    inventario.fechaCaducidad = datetime.now()
+    inventario.estatus = "Rechazado"
+    db.session.commit()
+
+    return jsonify({'message': 'Pago realizado correctamente'}), 200
+
 
 def agregarDinero():
     data = request.get_json()

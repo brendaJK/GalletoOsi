@@ -107,10 +107,12 @@
             <label for="tipoGalleta">Tipo de Galleta</label>
             <select id="tipoGalleta" name="tipoGalleta" onchange="actualizarPrecioVenta()">
                 {% for producto in produccion %}
-                    <option value="{{ producto.nombreProducto }}" data-costo-produccion="{{ producto.costo_por_unidad }}">{{ producto.nombreProducto }}</option>
+                    <option value="{{ producto.nombreProducto }}" 
+                        data-precio-venta="{{ producto.precio_venta }}" 
+                        data-cantidad-disponible="{{producto.total_cantidad_producida}}">{{ producto.nombreProducto }}</option>
                 {% endfor %}
             </select>
-            <h3 id="cantidadDisponible"></h3>
+            
         </div>
         <div class="form-group">
             <label for="cantidad">Cantidad</label>
@@ -118,8 +120,10 @@
         </div>
         <div class="form-group">
             <h2 id="precioVenta" name="precioVenta" class="precio-venta"></h2>
+            <h2 id="cantidadDisponible" class="precio-venta"></h2>
+            
         </div>
-        <button type="button" class="btn btn-primary" onclick="guardarFila()">Enviar</button>
+        <button type="button" class="btn btn-primary" onclick="guardarFila()">Agregar</button>
     </form>
 
     <h2>Tabla de Ventas</h2>
@@ -138,66 +142,96 @@
     </table>
     <h1 id="total"></h1>
     <div class="footer-button">
-        <button onclick="cobrar()">Cobrar</button>
-    </div>
-    <div class="footer-button">
-        <button onclick="confirmarVenta()">Confirmar Venta</button>
+        <button id="botonCobrar" onclick="cobrar()" disabled>Cobrar</button>
     </div>
 </body>
 </html>
 
     <script>
+         window.onload = function() {
+        actualizarPrecioVenta();
+    };
+
     function guardarFila() {
-        var tipoVenta = document.getElementById('tipoVenta').value;
+    var tipoVenta = document.getElementById('tipoVenta').value;
     var tipoGalleta = document.getElementById('tipoGalleta').value;
     var cantidad = parseInt(document.getElementById('cantidad').value);
-    var precioVentaPorUnidad = parseFloat(document.getElementById('precioVenta').textContent.split(": ")[1]);
+    var precioVentaPorUnidad = parseFloat(document.getElementById('precioVenta').textContent.split(": ")[1].replace('$', ''));
+    var cantidadDisponible = parseInt(document.getElementById('cantidadDisponible').textContent.split(": ")[1]);
+    
+    if (!tipoVenta || !tipoGalleta || isNaN(cantidad)) {
+        Swal.fire({
+            icon: 'warning',
+            title: '¡Error!',
+            text: 'Por favor, complete todos los campos antes de agregar a la tabla.',
+            timer: 2000, 
+            timerProgressBar: true, 
+            toast: true, 
+            position: 'top-end',
+            showConfirmButton: false 
+        });
+        return;
+    }
+
+    var cantidadAVender = 0;
+    
+    if (tipoVenta === 'unidad') {
+        cantidadAVender = cantidad
+    } else if (tipoVenta === 'caja') {
+        cantidadAVender = cantidad * 20
+    } else if (tipoVenta === 'gramo') {
+        cantidadAVender = cantidad / 25
+    }
+    if (cantidadAVender > cantidadDisponible) {
+        Swal.fire({
+            icon: 'warning',
+            title: '¡Error!',
+            text: 'No tienes suficientes galletas disponibles.',
+            timer: 2000, 
+            timerProgressBar: true, 
+            toast: true, 
+            position: 'top-end',
+            showConfirmButton: false 
+        });
+        return;
+    }
 
     var subtotal = 0;
 
     if (tipoVenta === 'unidad') {
         subtotal = cantidad * precioVentaPorUnidad;
     } else if (tipoVenta === 'caja') {
-        var galletasPorCaja =15;
-        subtotal = galletasPorCaja * precioVentaPorUnidad;
+        subtotal = cantidad * 15;
+        subtotal = subtotal * precioVentaPorUnidad
         subtotal -= subtotal * 0.02; // Aplicar el descuento del 2%
     } else if (tipoVenta === 'gramo') {
-        var pesoPorGalleta = 25;
-        var galletasPorGramo = Math.floor(cantidad / pesoPorGalleta);
-        subtotal = galletasPorGramo * precioVentaPorUnidad;
-        subtotal -= subtotal * 0.03; // Aplicar el descuento del 2%
+        subtotal = cantidad / 25;
+        subtotal = subtotal * pre
+        subtotal -= subtotal * 0.03; // Aplicar el descuento del 3%
     }
-
-    var nuevaFila = '<tr><td>' + tipoVenta + '</td><td>' + cantidad + '</td><td>' + tipoGalleta + '</td><td>' + subtotal.toFixed(2) + '</td><td><button onclick="eliminarFila(this)">Eliminar</button></td></tr>';
+    
+    var nuevaFila = '<tr><td>' + tipoVenta + '</td><td>' + cantidad + '</td><td>' + tipoGalleta + '</td><td>' + subtotal.toFixed(1) + '</td><td><button onclick="eliminarFila(this)">Eliminar</button></td></tr>';
     document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0].innerHTML += nuevaFila;
-
-    var tablaVentas = document.getElementById('tabla-ventas');
-    var botonesCobrar = document.querySelectorAll('button[data-accion="cobrar"]');
-    if (tablaVentas.getElementsByTagName('tr').length > 0) {
-        botonesCobrar.forEach(function(boton) {
-            boton.disabled = false;
-        });
-    } else {
-        botonesCobrar.forEach(function(boton) {
-            boton.disabled = true;
-        });
-    }
+    document.getElementById('botonCobrar').disabled = false;
     actualizarTotal();
 }
+
+
+
 function eliminarFila(botonEliminar) {
     var fila = botonEliminar.parentNode.parentNode;
     fila.parentNode.removeChild(fila);
     actualizarTotal();
 }
 function actualizarPrecioVenta() {
-    var selectTipoGalleta = document.getElementById('tipoGalleta');
-    var selectedOption = selectTipoGalleta.options[selectTipoGalleta.selectedIndex];
-    var costoProduccion = parseFloat(selectedOption.getAttribute('data-costo-produccion'));
-    var margenBeneficio = 0.5; 
-    var precioVenta = costoProduccion * (1 + margenBeneficio);
+        var selectTipoGalleta = document.getElementById('tipoGalleta');
+        var selectedOption = selectTipoGalleta.options[selectTipoGalleta.selectedIndex];
+        var precioVenta = parseFloat(selectedOption.getAttribute('data-precio-venta'));
+        var cantidadDisponible = parseInt(selectedOption.getAttribute('data-cantidad-disponible'));
 
-    document.getElementById('precioVenta').textContent = "Precio de venta por unidad: " + precioVenta.toFixed(2);  
-}
+        document.getElementById('precioVenta').textContent = "Precio de venta por unidad: $" + precioVenta.toFixed(2);
+        document.getElementById('cantidadDisponible').textContent = "Cantidad disponible: " + cantidadDisponible;
+    }
 function actualizarTotal() {
     var total = 0;
     var tablaVentas = document.getElementById('tabla-ventas');
@@ -248,9 +282,12 @@ function cobrar() {
                 if (data.success) {
                     const cambio = data.cambio;
                     Swal.fire('Cobro exitoso', `El cambio es: ${cambio.toFixed(2)}`, 'success');
-                    // Deshabilitar el botón "Cobrar"
+                    confirmarVenta();
                     document.querySelectorAll('button[data-accion="cobrar"]').forEach(function(boton) {
                         boton.disabled = true;
+                        var botonConfirmar = document.getElementById('botonConfirmar');
+                        botonConfirmar.disabled = false;
+                       
                     });
                 } else {
                     Swal.fire('Error', 'Ocurrió un error al actualizar la caja', 'error');
@@ -265,6 +302,14 @@ function cobrar() {
 }
 
 function confirmarVenta() {
+
+    var tablaVentas = document.getElementById('tabla-ventas');
+    var filas = tablaVentas.getElementsByTagName('tr');
+    if (filas.length === 0) {
+        Swal.fire('Error', 'No hay ventas para confirmar', 'error');
+        return;
+    }
+
     var totalVenta = parseFloat(document.querySelector('h1#total').textContent.replace('Total: ', ''));
     var detallesVenta = [];
 
@@ -278,6 +323,7 @@ function confirmarVenta() {
         detalle.usuario = 1
         detallesVenta.push(detalle);
     }
+    limpiarTabla()
     var ventaJSON = {
         totalVenta: totalVenta,
         detallesVenta: detallesVenta
@@ -308,6 +354,7 @@ function confirmarVenta() {
     .catch(error => {
         console.error('Error:', error);
     });
+    actualizarPrecioVenta()
 }
 
 
@@ -338,19 +385,25 @@ function confirmarVenta() {
 
 
 
-
-
-
+        function limpiarTabla() {
+            document.getElementById('tabla-ventas').getElementsByTagName('tbody')[0].innerHTML = '';
+            document.getElementById('cantidad').value = '';
+            document.getElementById('precioVenta').value = '';
+            actualizarTotal(); // Actualizar el total después de limpiar la tabla
+        }
 
         document.getElementById('cantidad').addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
             });
-        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.getElementById('montoRecibido').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            });
+       /* document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('keydown', function(e) {
             if (e.key === "F12") {
                 e.preventDefault();
             }
-        });
+        });*/
 
     </script>
 </body>

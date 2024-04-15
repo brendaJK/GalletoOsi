@@ -30,7 +30,7 @@ def sanitize_input(input_str):
 
 def maPrimas():
     materia_form = forms.MateForm(request.form)
-    materias = MateriaPrimas.query.filter_by(estatus='Disponible').all()
+    materias = MateriaPrimas.query.filter_by(estatus='Pagado').all()
     
     if request.method == 'POST':
         try:

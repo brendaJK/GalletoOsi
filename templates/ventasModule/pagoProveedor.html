@@ -78,43 +78,92 @@
                 <td>{{ compra.cantidad }}</td>
                 <td>{{ compra.estatus }}</td>
                 <td><button onclick="mostrarVentana('{{ compra.idCMP }}', '{{ compra.nombreMa }}', '{{ compra.costo }}')">Seleccionar</button></td>
-                <td><button>Cancelar</button></td>
+                <td><button onclick="rechazarPago('{{ compra.idCMP }}', '{{ compra.nombreMa }}', '{{ compra.costo }}')">Rechazar</button></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
     <div class="footer-button">
         <button onclick="mostrarVentanaAgregarDinero()">Agregar Dinero a Caja</button>
     </div>
 
     <script>
         function mostrarVentana(idCMP, nombreProducto, totalPagar) {
-            Swal.fire({
-                title: 'Pagar Materia Prima',
-                html: `
-                    <p>Producto: ${ nombreProducto }</p>
-                    <p>Total a pagar: ${ totalPagar }</p>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Pagar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    confirmarPago(idCMP, nombreProducto, totalPagar);
-                    Swal.fire('Pago confirmado', `Has pagado por ${ nombreProducto }.`, 'success');
-                    window.location.reload();
-                } else {
-                    Swal.fire('Pago cancelado', `No has realizado el pago por ${ nombreProducto }.`, 'info');
-                }
-            });
+    Swal.fire({
+        title: 'Pagar Materia Prima',
+        html: `
+            <p>Producto: ${nombreProducto}</p>
+            <p>Total a pagar: ${totalPagar}</p>
+            <div class="form-group">
+                <label for="fechaCaducidad">Fecha de caducidad:</label>
+                <input type="date" id="fechaCaducidad" name="fechaCaducidad" class="swal2-input">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Pagar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const fechaCaducidad = document.getElementById('fechaCaducidad').value;
+            if (!fechaCaducidad) {
+                Swal.fire('Error', 'Por favor, ingresa la fecha de caducidad.', 'error');
+                return;
+            }
+            confirmarPago(idCMP, nombreProducto, totalPagar, fechaCaducidad);
+            Swal.fire('Pago confirmado', `Has pagado por ${nombreProducto}.`, 'success');
+            window.location.reload();
+        } else {
+            Swal.fire('Pago cancelado', `No has realizado el pago por ${nombreProducto}.`, 'info');
         }
+    });
+}
 
-        function confirmarPago(idCMP, nombreProducto, totalPagar) {
+function rechazarPago(idCMP, nombreProducto, totalPagar) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: `¿Quieres rechazar el pago por ${nombreProducto}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, rechazar pago',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const datosRechazo = {
+                idCMP: idCMP,
+                nombreProducto: nombreProducto,
+                totalPagar: totalPagar,
+                estatus: 'Rechazado'
+            };
+            fetch('/rechazo-materiaPrima', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosRechazo)
+            })
+            .then(response => {
+                Swal.fire('Rechazo exitoso', `El pago por ${nombreProducto} ha sido rechazado correctamente.`, 'success');
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error al enviar los datos de pago:', error);
+                Swal.fire('Error', 'Hubo un problema al procesar el rechazo del pago.', 'error');
+            });
+        } else {
+            Swal.fire('Cancelado', 'El rechazo del pago ha sido cancelado.', 'info');
+        }
+    });
+}
+
+
+        function confirmarPago(idCMP, nombreProducto, totalPagar,fechaCaducidad) {
             const datosPago = {
                 idCMP: idCMP,
                 nombreProducto: nombreProducto,
-                totalPagar: totalPagar
+                totalPagar: totalPagar,
+                fechaCaducidad: fechaCaducidad
             };
             fetch('/pago-materiaPrima', {
                 method: 'POST',
@@ -169,7 +218,7 @@
                 body: JSON.stringify(datosCaja)
             })
             .then(response => {
-                // Manejar la respuesta si es necesario
+               
             })
             .catch(error => {
                 console.error('Error al agregar dinero a la caja:', error);
